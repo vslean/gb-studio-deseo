@@ -146,6 +146,7 @@ export const ActorEditor: FC<ActorEditorProps> = ({
 
   const [clipboardData, setClipboardData] = useState<unknown>(null);
   const [notesOpen, setNotesOpen] = useState<boolean>(!!actor?.notes);
+  const [prefabOpen, setPrefabOpen] = useState<boolean>(!!actor?.prefabId);
   const tabs = Object.keys(actor?.collisionGroup ? collisionTabs : defaultTabs);
   const secondaryTabs = Object.keys(hitTabs);
 
@@ -281,6 +282,14 @@ export const ActorEditor: FC<ActorEditorProps> = ({
     setNotesOpen(true);
   };
 
+  const onUsePrefab = () => {
+    setPrefabOpen(true);
+  };
+
+  const onCreatePrefab = () => {
+    setPrefabOpen(true);
+  };
+
   const onToggleLockScriptEditor = () => {
     dispatch(editorActions.setLockScriptEditor(!lockScriptEditor));
   };
@@ -296,6 +305,7 @@ export const ActorEditor: FC<ActorEditorProps> = ({
   const showCollisionGroup = !actor.isPinned;
 
   const showNotes = actor.notes || notesOpen;
+  const showPrefab = actor.prefabId || prefabOpen;
 
   const lockButton = (
     <Button
@@ -346,6 +356,16 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                 {!showNotes && (
                   <MenuItem onClick={onAddNotes}>
                     {l10n("FIELD_ADD_NOTES")}
+                  </MenuItem>
+                )}
+                {!showPrefab && (
+                  <MenuItem onClick={onUsePrefab}>
+                    {l10n("FIELD_USE_PREFAB")}
+                  </MenuItem>
+                )}
+                {!actor.prefabId && (
+                  <MenuItem onClick={onCreatePrefab}>
+                    {l10n("FIELD_CREATE_PREFAB")}
                   </MenuItem>
                 )}
                 <MenuItem onClick={onCopy}>{l10n("MENU_COPY_ACTOR")}</MenuItem>
@@ -434,24 +454,28 @@ export const ActorEditor: FC<ActorEditorProps> = ({
               )} */}
             </FormRow>
             <FormDivider />
-            <FormRow>
-              <FormField name="actorPrefabId" label={l10n("FIELD_PREFAB")}>
-                <ActorPrefabSelect
-                  name="actorPrefabId"
-                  value={actor.prefabId}
-                  direction={actor.direction}
-                  frame={0}
-                  paletteId={
-                    colorsEnabled
-                      ? actor.paletteId || defaultSpritePaletteId
-                      : undefined
-                  }
-                  onChange={onChangeField("prefabId")}
-                  optional
-                />
-              </FormField>
-            </FormRow>
-            <FormDivider />
+            {showPrefab && (
+              <>
+                <FormRow>
+                  <FormField name="actorPrefabId" label={l10n("FIELD_PREFAB")}>
+                    <ActorPrefabSelect
+                      name="actorPrefabId"
+                      value={actor.prefabId}
+                      direction={actor.direction}
+                      frame={0}
+                      paletteId={
+                        colorsEnabled
+                          ? actor.paletteId || defaultSpritePaletteId
+                          : undefined
+                      }
+                      onChange={onChangeField("prefabId")}
+                      optional
+                    />
+                  </FormField>
+                </FormRow>
+                <FormDivider />
+              </>
+            )}
 
             {!prefabActor && (
               <>
