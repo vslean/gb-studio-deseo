@@ -71,6 +71,7 @@ export interface NormalisedResult {
   emotes: EntityId[];
   variables: EntityId[];
   engineFieldValues: EntityId[];
+  prefabActors: EntityId[];
 }
 
 export type NormalisedData = NormalizedSchema<
@@ -141,6 +142,7 @@ const projectSchema = {
   customEvents: [customEventsSchema],
   palettes: [palettesSchema],
   engineFieldValues: [engineFieldValuesSchema],
+  prefabActors: [actorSchema],
 };
 
 export const normalizeEntities = (
@@ -167,6 +169,7 @@ export const denormalizeEntities = (
     emotes: state.emotes.ids,
     variables: state.variables.ids,
     engineFieldValues: state.engineFieldValues.ids,
+    prefabActors: state.prefabActorIds,
   };
   const entities: NormalisedEntities = {
     actors: state.actors.entities as Record<EntityId, Actor>,

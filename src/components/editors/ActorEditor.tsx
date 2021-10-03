@@ -398,24 +398,6 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                 </MenuItem>
               </DropdownButton>
             </FormRow>
-            <FormDivider />
-            <FormRow>
-              <FormField name="actorSprite" label={l10n("FIELD_SPRITE_SHEET")}>
-                <SpriteSheetSelectButton
-                  name="actorSprite"
-                  value={actor.spriteSheetId}
-                  direction={actor.direction}
-                  frame={0}
-                  paletteId={
-                    colorsEnabled
-                      ? actor.paletteId || defaultSpritePaletteId
-                      : undefined
-                  }
-                  onChange={onChangeField("spriteSheetId")}
-                  includeInfo
-                />
-              </FormField>
-            </FormRow>
             <FormRow>
               {showDirectionInput && (
                 <FormField
@@ -441,6 +423,25 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                 />
               )} */}
             </FormRow>
+            <FormDivider />
+            <FormRow>
+              <FormField name="actorSprite" label={l10n("FIELD_SPRITE_SHEET")}>
+                <SpriteSheetSelectButton
+                  name="actorSprite"
+                  value={actor.spriteSheetId}
+                  direction={actor.direction}
+                  frame={0}
+                  paletteId={
+                    colorsEnabled
+                      ? actor.paletteId || defaultSpritePaletteId
+                      : undefined
+                  }
+                  onChange={onChangeField("spriteSheetId")}
+                  includeInfo
+                />
+              </FormField>
+            </FormRow>
+
             {showAnimatedCheckbox && (
               <FormRow>
                 <CheckboxField

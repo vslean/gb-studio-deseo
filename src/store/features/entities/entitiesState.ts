@@ -126,6 +126,7 @@ export const initialState: EntitiesState = {
   emotes: emotesAdapter.getInitialState(),
   variables: variablesAdapter.getInitialState(),
   engineFieldValues: engineFieldValuesAdapter.getInitialState(),
+  prefabActorIds: [],
 };
 
 const moveSelectedEntity =
@@ -233,6 +234,7 @@ const loadProject: CaseReducer<
     state.engineFieldValues,
     entities.engineFieldValues || {}
   );
+  state.prefabActorIds = data.result.prefabActors || [];
   fixAllScenesWithModifiedBackgrounds(state);
 };
 

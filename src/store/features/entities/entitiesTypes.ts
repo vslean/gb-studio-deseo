@@ -1,4 +1,4 @@
-import { EntityState, Dictionary } from "@reduxjs/toolkit";
+import { EntityState, Dictionary, EntityId } from "@reduxjs/toolkit";
 
 export type ActorDirection = "up" | "down" | "left" | "right";
 export type SpriteType = "static" | "animated" | "actor" | "actor_animated";
@@ -406,6 +406,7 @@ export interface EntitiesState {
   emotes: EntityState<Emote>;
   variables: EntityState<Variable>;
   engineFieldValues: EntityState<EngineFieldValue>;
+  prefabActorIds: EntityId[];
 }
 
 export type Asset = {
