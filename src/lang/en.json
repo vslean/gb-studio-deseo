@@ -442,6 +442,7 @@
   "FIELD_SET_VARIABLE": "Set Variable",
   "FIELD_TO_VARIABLE": "To Variable",
   "FIELD_FROM_SAVE_SLOT": "From Save Slot",
+  "FIELD_PREFAB": "Prefab",
 
   "// 7": "Asset Viewer ---------------------------------------------",
   "ASSET_SEARCH": "Search...",

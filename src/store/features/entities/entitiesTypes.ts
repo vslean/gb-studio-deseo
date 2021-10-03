@@ -92,6 +92,8 @@ export type Actor = {
   hit1Script: string[];
   hit2Script: string[];
   hit3Script: string[];
+  prefabId?: string;
+  prefabOverrides?: Array<keyof Actor>;
 };
 
 export type ActorDenormalized = Omit<

@@ -1,5 +1,6 @@
 import { normalize, denormalize, schema, NormalizedSchema } from "normalizr";
 import isEqual from "lodash/isEqual";
+import pick from "lodash/pick";
 import {
   ProjectEntitiesData,
   EntitiesState,
@@ -454,9 +455,34 @@ export const sceneName = (scene: Scene, sceneIndex: number) => {
   return scene.name || `Scene ${sceneIndex + 1}`;
 };
 
+export const prefabActorName = (actor: Actor, actorIndex: number) => {
+  return actor.name || `${l10n("PREFAB")} ${actorIndex + 1}`;
+};
+
 export const customEventName = (
   customEvent: CustomEvent,
   customEventIndex: number
 ) => {
   return customEvent.name || `${l10n("CUSTOM_EVENT")} ${customEventIndex + 1}`;
+};
+
+export const mergePrefabActor = (
+  actor: Actor,
+  prefabActor: Actor | undefined
+): Actor => {
+  if (!prefabActor) {
+    return actor;
+  }
+  const overrides = pick(actor, actor.prefabOverrides || []) as Partial<Actor>;
+  return {
+    ...prefabActor,
+    ...overrides,
+    name: actor.name,
+    x: actor.x,
+    y: actor.y,
+    direction: actor.direction,
+    isPinned: actor.isPinned,
+    prefabId: actor.prefabId,
+    prefabOverrides: actor.prefabOverrides,
+  };
 };

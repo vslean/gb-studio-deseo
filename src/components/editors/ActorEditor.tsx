@@ -40,6 +40,7 @@ import { KeysMatching } from "lib/helpers/types";
 import { NoteField } from "ui/form/NoteField";
 import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
+import { ActorPrefabSelect } from "components/forms/ActorPrefabSelect";
 
 interface ActorEditorProps {
   id: string;
@@ -136,6 +137,13 @@ export const ActorEditor: FC<ActorEditorProps> = ({
   const actor = useSelector((state: RootState) =>
     actorSelectors.selectById(state, id)
   );
+
+  const prefabActor = useSelector((state: RootState) =>
+    actor?.prefabId
+      ? actorSelectors.selectById(state, actor.prefabId)
+      : undefined
+  );
+
   const [clipboardData, setClipboardData] = useState<unknown>(null);
   const [notesOpen, setNotesOpen] = useState<boolean>(!!actor?.notes);
   const tabs = Object.keys(actor?.collisionGroup ? collisionTabs : defaultTabs);
@@ -317,8 +325,10 @@ export const ActorEditor: FC<ActorEditorProps> = ({
 
   return (
     <Sidebar onClick={selectSidebar} multiColumn={multiColumn}>
-      {!lockScriptEditor && (
-        <SidebarColumn style={{ maxWidth: multiColumn ? 300 : undefined }}>
+      {(!lockScriptEditor || prefabActor) && (
+        <SidebarColumn
+          style={{ maxWidth: multiColumn && !prefabActor ? 300 : undefined }}
+        >
           <FormContainer>
             <FormHeader>
               <EditableText
@@ -425,10 +435,10 @@ export const ActorEditor: FC<ActorEditorProps> = ({
             </FormRow>
             <FormDivider />
             <FormRow>
-              <FormField name="actorSprite" label={l10n("FIELD_SPRITE_SHEET")}>
-                <SpriteSheetSelectButton
-                  name="actorSprite"
-                  value={actor.spriteSheetId}
+              <FormField name="actorPrefabId" label={l10n("FIELD_PREFAB")}>
+                <ActorPrefabSelect
+                  name="actorPrefabId"
+                  value={actor.prefabId}
                   direction={actor.direction}
                   frame={0}
                   paletteId={
@@ -436,112 +446,140 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                       ? actor.paletteId || defaultSpritePaletteId
                       : undefined
                   }
-                  onChange={onChangeField("spriteSheetId")}
-                  includeInfo
+                  onChange={onChangeField("prefabId")}
+                  optional
                 />
               </FormField>
             </FormRow>
-
-            {showAnimatedCheckbox && (
-              <FormRow>
-                <CheckboxField
-                  name="animated"
-                  label={l10n("FIELD_ANIMATE_WHEN_STATIONARY")}
-                  checked={actor.animate}
-                  onChange={onChangeFieldInput("animate")}
-                />
-              </FormRow>
-            )}
             <FormDivider />
-            <FormRow>
-              <FormField
-                name="actorMoveSpeed"
-                label={l10n("FIELD_MOVEMENT_SPEED")}
-              >
-                <MovementSpeedSelect
-                  name="actorMoveSpeed"
-                  value={actor.moveSpeed}
-                  onChange={onChangeField("moveSpeed")}
-                />
-              </FormField>
-              {showAnimSpeed && (
-                <FormField
-                  name="actorAnimSpeed"
-                  label={l10n("FIELD_ANIMATION_SPEED")}
-                >
-                  <AnimationSpeedSelect
-                    name="actorAnimSpeed"
-                    value={actor.animSpeed}
-                    onChange={onChangeField("animSpeed")}
-                  />
-                </FormField>
-              )}
-            </FormRow>
-            {showCollisionGroup && (
+
+            {!prefabActor && (
               <>
-                <FormDivider />
                 <FormRow>
                   <FormField
-                    name="actorCollisionGroup"
-                    label={l10n("FIELD_COLLISION_GROUP")}
+                    name="actorSprite"
+                    label={l10n("FIELD_SPRITE_SHEET")}
                   >
-                    <CollisionMaskPicker
-                      id="actorCollisionGroup"
-                      value={actor.collisionGroup}
-                      onChange={onChangeFieldInput("collisionGroup")}
-                      includeNone
+                    <SpriteSheetSelectButton
+                      name="actorSprite"
+                      value={actor.spriteSheetId}
+                      direction={actor.direction}
+                      frame={0}
+                      paletteId={
+                        colorsEnabled
+                          ? actor.paletteId || defaultSpritePaletteId
+                          : undefined
+                      }
+                      onChange={onChangeField("spriteSheetId")}
+                      includeInfo
                     />
                   </FormField>
                 </FormRow>
+
+                {showAnimatedCheckbox && (
+                  <FormRow>
+                    <CheckboxField
+                      name="animated"
+                      label={l10n("FIELD_ANIMATE_WHEN_STATIONARY")}
+                      checked={actor.animate}
+                      onChange={onChangeFieldInput("animate")}
+                    />
+                  </FormRow>
+                )}
+                <FormDivider />
+                <FormRow>
+                  <FormField
+                    name="actorMoveSpeed"
+                    label={l10n("FIELD_MOVEMENT_SPEED")}
+                  >
+                    <MovementSpeedSelect
+                      name="actorMoveSpeed"
+                      value={actor.moveSpeed}
+                      onChange={onChangeField("moveSpeed")}
+                    />
+                  </FormField>
+                  {showAnimSpeed && (
+                    <FormField
+                      name="actorAnimSpeed"
+                      label={l10n("FIELD_ANIMATION_SPEED")}
+                    >
+                      <AnimationSpeedSelect
+                        name="actorAnimSpeed"
+                        value={actor.animSpeed}
+                        onChange={onChangeField("animSpeed")}
+                      />
+                    </FormField>
+                  )}
+                </FormRow>
+                {showCollisionGroup && (
+                  <>
+                    <FormDivider />
+                    <FormRow>
+                      <FormField
+                        name="actorCollisionGroup"
+                        label={l10n("FIELD_COLLISION_GROUP")}
+                      >
+                        <CollisionMaskPicker
+                          id="actorCollisionGroup"
+                          value={actor.collisionGroup}
+                          onChange={onChangeFieldInput("collisionGroup")}
+                          includeNone
+                        />
+                      </FormField>
+                    </FormRow>
+                  </>
+                )}
               </>
             )}
           </FormContainer>
         </SidebarColumn>
       )}
-      <SidebarColumn>
-        <StickyTabs>
-          {actor.collisionGroup ? (
-            <TabBar
-              value={scriptMode as CollisionTab}
-              values={collisionTabs}
-              onChange={onChangeScriptMode}
-              overflowActiveTab={scriptMode === "hit"}
-              buttons={
-                <>
-                  {lockButton}
-                  {scriptButton}
-                </>
-              }
-            />
-          ) : (
-            <TabBar
-              value={scriptMode as DefaultTab}
-              values={defaultTabs}
-              onChange={onChangeScriptMode}
-              buttons={
-                <>
-                  {lockButton}
-                  {scriptButton}
-                </>
-              }
-            />
-          )}
-          {scriptMode === "hit" && (
-            <TabBar
-              variant="secondary"
-              value={scriptModeSecondary}
-              values={hitTabs}
-              onChange={onChangeScriptModeSecondary}
-            />
-          )}
-        </StickyTabs>
-        <ScriptEditor
-          value={actor[scriptKey]}
-          type="actor"
-          entityId={actor.id}
-          scriptKey={scriptKey}
-        />
-      </SidebarColumn>
+      {!prefabActor && (
+        <SidebarColumn>
+          <StickyTabs>
+            {actor.collisionGroup ? (
+              <TabBar
+                value={scriptMode as CollisionTab}
+                values={collisionTabs}
+                onChange={onChangeScriptMode}
+                overflowActiveTab={scriptMode === "hit"}
+                buttons={
+                  <>
+                    {lockButton}
+                    {scriptButton}
+                  </>
+                }
+              />
+            ) : (
+              <TabBar
+                value={scriptMode as DefaultTab}
+                values={defaultTabs}
+                onChange={onChangeScriptMode}
+                buttons={
+                  <>
+                    {lockButton}
+                    {scriptButton}
+                  </>
+                }
+              />
+            )}
+            {scriptMode === "hit" && (
+              <TabBar
+                variant="secondary"
+                value={scriptModeSecondary}
+                values={hitTabs}
+                onChange={onChangeScriptModeSecondary}
+              />
+            )}
+          </StickyTabs>
+          <ScriptEditor
+            value={actor[scriptKey]}
+            type="actor"
+            entityId={actor.id}
+            scriptKey={scriptKey}
+          />
+        </SidebarColumn>
+      )}
     </Sidebar>
   );
 };

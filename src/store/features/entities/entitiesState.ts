@@ -2986,6 +2986,16 @@ export const variableSelectors = variablesAdapter.getSelectors(
 export const engineFieldValueSelectors = engineFieldValuesAdapter.getSelectors(
   (state: RootState) => state.project.present.entities.engineFieldValues
 );
+export const getPrefabActors = createSelector(
+  [
+    (state: RootState) => state.project.present.entities.prefabActorIds,
+    actorSelectors.selectEntities,
+  ],
+  (prefabActorIds, actorsLookup) =>
+    prefabActorIds
+      .map((actorId) => actorsLookup[actorId])
+      .filter((i) => i) as Actor[]
+);
 
 export const getMaxSceneRight = createSelector(
   [sceneSelectors.selectAll],
