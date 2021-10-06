@@ -728,6 +728,13 @@ const editorSlice = createSlice({
           state.entityId = action.payload.customEventId;
         }
       })
+      .addCase(entitiesActions.addPrefabActor, (state, action) => {
+        if (!action.payload.defaults) {
+          state.type = "prefabActor";
+          state.scene = "";
+          state.entityId = action.payload.actorId;
+        }
+      })
       .addCase(entitiesActions.moveActor, (state, action) => {
         if (state.scene !== action.payload.newSceneId) {
           state.scene = action.payload.newSceneId;
