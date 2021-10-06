@@ -4,6 +4,7 @@ import { clipboard } from "electron";
 import { RootState } from "store/configureStore";
 import {
   actorSelectors,
+  getPrefabActorIds,
   sceneSelectors,
 } from "store/features/entities/entitiesState";
 import { DropdownButton } from "ui/buttons/DropdownButton";
@@ -41,10 +42,12 @@ import { NoteField } from "ui/form/NoteField";
 import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
 import { ActorPrefabSelect } from "components/forms/ActorPrefabSelect";
+import { prefabActorName } from "store/features/entities/entitiesHelpers";
 
 interface ActorEditorProps {
   id: string;
-  sceneId: string;
+  sceneId?: string;
+  isPrefab?: boolean;
   multiColumn: boolean;
 }
 
@@ -132,6 +135,7 @@ const getScriptKey = (
 export const ActorEditor: FC<ActorEditorProps> = ({
   id,
   sceneId,
+  isPrefab,
   multiColumn,
 }) => {
   const actor = useSelector((state: RootState) =>
@@ -169,7 +173,7 @@ export const ActorEditor: FC<ActorEditorProps> = ({
   >(initialSecondaryTab as keyof ScriptHandlers["hit"]);
 
   const scene = useSelector((state: RootState) =>
-    sceneSelectors.selectById(state, sceneId)
+    sceneSelectors.selectById(state, sceneId || "")
   );
   const defaultSpritePaletteId = useSelector(
     (state: RootState) =>
@@ -181,8 +185,13 @@ export const ActorEditor: FC<ActorEditorProps> = ({
   const lockScriptEditor = useSelector(
     (state: RootState) => state.editor.lockScriptEditor
   );
+  const prefabActorIds = useSelector((state: RootState) =>
+    getPrefabActorIds(state)
+  );
 
-  const actorIndex = scene?.actors.indexOf(id) || 0;
+  const actorIndex = isPrefab
+    ? prefabActorIds.indexOf(id) || 0
+    : scene?.actors.indexOf(id) || 0;
 
   // Make sure currently selected script tab is availble
   // when collision group is modified otherwise use first available tab
@@ -266,7 +275,12 @@ export const ActorEditor: FC<ActorEditorProps> = ({
 
   const onRemove = () => {
     if (actor) {
-      dispatch(entitiesActions.removeActor({ actorId: actor.id, sceneId }));
+      dispatch(
+        entitiesActions.removeActor({
+          actorId: actor.id,
+          sceneId: sceneId || "",
+        })
+      );
     }
   };
 
@@ -286,15 +300,11 @@ export const ActorEditor: FC<ActorEditorProps> = ({
     setPrefabOpen(true);
   };
 
-  const onCreatePrefab = () => {
-    setPrefabOpen(true);
-  };
-
   const onToggleLockScriptEditor = () => {
     dispatch(editorActions.setLockScriptEditor(!lockScriptEditor));
   };
 
-  if (!scene || !actor) {
+  if ((!isPrefab && !scene) || !actor) {
     return <WorldEditor />;
   }
 
@@ -305,7 +315,7 @@ export const ActorEditor: FC<ActorEditorProps> = ({
   const showCollisionGroup = !actor.isPinned;
 
   const showNotes = actor.notes || notesOpen;
-  const showPrefab = actor.prefabId || prefabOpen;
+  const showPrefab = !isPrefab && (actor.prefabId || prefabOpen);
 
   const lockButton = (
     <Button
@@ -343,7 +353,11 @@ export const ActorEditor: FC<ActorEditorProps> = ({
             <FormHeader>
               <EditableText
                 name="name"
-                placeholder={actorName(actor, actorIndex)}
+                placeholder={
+                  isPrefab
+                    ? prefabActorName(actor, actorIndex)
+                    : actorName(actor, actorIndex)
+                }
                 value={actor.name || ""}
                 onChange={onChangeFieldInput("name")}
               />
@@ -358,14 +372,9 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                     {l10n("FIELD_ADD_NOTES")}
                   </MenuItem>
                 )}
-                {!showPrefab && (
+                {!isPrefab && !showPrefab && (
                   <MenuItem onClick={onUsePrefab}>
                     {l10n("FIELD_USE_PREFAB")}
-                  </MenuItem>
-                )}
-                {!actor.prefabId && (
-                  <MenuItem onClick={onCreatePrefab}>
-                    {l10n("FIELD_CREATE_PREFAB")}
                   </MenuItem>
                 )}
                 <MenuItem onClick={onCopy}>{l10n("MENU_COPY_ACTOR")}</MenuItem>
@@ -393,67 +402,62 @@ export const ActorEditor: FC<ActorEditorProps> = ({
               </FormRow>
             )}
 
-            <FormRow>
-              <CoordinateInput
-                name="x"
-                coordinate="x"
-                value={actor.x}
-                placeholder="0"
-                min={0}
-                max={scene.width - 2}
-                onChange={onChangeFieldInput("x")}
-              />
-              <CoordinateInput
-                name="y"
-                coordinate="y"
-                value={actor.y}
-                placeholder="0"
-                min={0}
-                max={scene.height - 1}
-                onChange={onChangeFieldInput("y")}
-              />
-              <DropdownButton
-                menuDirection="right"
-                label={<PinIcon />}
-                showArrow={false}
-                variant={actor.isPinned ? "primary" : "normal"}
-                style={{
-                  padding: "5px 0",
-                  minWidth: 28,
-                }}
-              >
-                <MenuItem onClick={onToggleField("isPinned")}>
-                  <Checkbox id="pin" name="pin" checked={actor.isPinned} /> Pin
-                  to Screen
-                </MenuItem>
-              </DropdownButton>
-            </FormRow>
-            <FormRow>
-              {showDirectionInput && (
-                <FormField
-                  name="actorDirection"
-                  label={l10n("FIELD_DIRECTION")}
-                >
-                  <DirectionPicker
-                    id="actorDirection"
-                    value={actor.direction}
-                    onChange={onChangeFieldInput("direction")}
+            {scene && (
+              <>
+                <FormRow>
+                  <CoordinateInput
+                    name="x"
+                    coordinate="x"
+                    value={actor.x}
+                    placeholder="0"
+                    min={0}
+                    max={scene.width - 2}
+                    onChange={onChangeFieldInput("x")}
                   />
-                </FormField>
-              )}
-              {/* {showFrameInput && (
-                <NumberField
-                  name="frame"
-                  label={l10n("FIELD_INITIAL_FRAME")}
-                  placeholder="0"
-                  min={0}
-                  max={(spriteSheet?.numFrames || 1) - 1}
-                  value={actor.frame}
-                  onChange={onChangeFieldInput("frame")}
-                />
-              )} */}
-            </FormRow>
-            <FormDivider />
+                  <CoordinateInput
+                    name="y"
+                    coordinate="y"
+                    value={actor.y}
+                    placeholder="0"
+                    min={0}
+                    max={scene.height - 1}
+                    onChange={onChangeFieldInput("y")}
+                  />
+                  <DropdownButton
+                    menuDirection="right"
+                    label={<PinIcon />}
+                    showArrow={false}
+                    variant={actor.isPinned ? "primary" : "normal"}
+                    style={{
+                      padding: "5px 0",
+                      minWidth: 28,
+                    }}
+                  >
+                    <MenuItem onClick={onToggleField("isPinned")}>
+                      <Checkbox id="pin" name="pin" checked={actor.isPinned} />{" "}
+                      Pin to Screen
+                    </MenuItem>
+                  </DropdownButton>
+                </FormRow>
+
+                <FormRow>
+                  {showDirectionInput && (
+                    <FormField
+                      name="actorDirection"
+                      label={l10n("FIELD_DIRECTION")}
+                    >
+                      <DirectionPicker
+                        id="actorDirection"
+                        value={actor.direction}
+                        onChange={onChangeFieldInput("direction")}
+                      />
+                    </FormField>
+                  )}
+                </FormRow>
+                <FormDivider />
+              </>
+            )}
+
             {showPrefab && (
               <>
                 <FormRow>

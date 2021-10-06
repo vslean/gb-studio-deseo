@@ -37,6 +37,16 @@ const EditorSidebar = ({ multiColumn }: EditorSidebarProps) => {
       />
     );
   }
+  if (type === "prefabActor") {
+    return (
+      <ActorEditor
+        key={entityId}
+        id={entityId}
+        isPrefab
+        multiColumn={multiColumn}
+      />
+    );
+  }
   if (type === "scene") {
     return <SceneEditor key={sceneId} id={sceneId} multiColumn={multiColumn} />;
   }

@@ -1974,6 +1974,53 @@ const removePalette: CaseReducer<
 };
 
 /**************************************************************************
+ * Prefabs
+ */
+
+const addPrefabActor: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ actorId: string; defaults?: Partial<Actor> }>
+> = (state, action) => {
+  const spriteSheetId = first(localSpriteSheetSelectors.selectAll(state))?.id;
+  if (!spriteSheetId) {
+    return;
+  }
+
+  const newActor: Actor = {
+    name: "",
+    frame: 0,
+    animate: false,
+    spriteSheetId,
+    direction: "down",
+    moveSpeed: 1,
+    animSpeed: 15,
+    paletteId: "",
+    isPinned: false,
+    collisionGroup: "",
+    ...(action.payload.defaults || {}),
+    script: [],
+    startScript: [],
+    updateScript: [],
+    hit1Script: [],
+    hit2Script: [],
+    hit3Script: [],
+    id: action.payload.actorId,
+    x: 0,
+    y: 0,
+  };
+
+  state.prefabActorIds.push(action.payload.actorId);
+  actorsAdapter.addOne(state.actors, newActor);
+};
+
+const removePrefabActor: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ actorId: string }>
+> = (state, action) => {
+  actorsAdapter.removeOne(state.actors, action.payload.actorId);
+};
+
+/**************************************************************************
  * Custom Events
  */
 
@@ -2721,6 +2768,23 @@ const entitiesSlice = createSlice({
     removePalette,
 
     /**************************************************************************
+     * Prefabs
+     */
+
+    addPrefabActor: {
+      reducer: addPrefabActor,
+      prepare: (payload?: { actorId?: string; defaults?: Partial<Actor> }) => {
+        return {
+          payload: {
+            actorId: payload?.actorId ?? uuid(),
+            defaults: payload?.defaults,
+          },
+        };
+      },
+    },
+    removePrefabActor,
+
+    /**************************************************************************
      * Custom Events
      */
 
@@ -2986,11 +3050,11 @@ export const variableSelectors = variablesAdapter.getSelectors(
 export const engineFieldValueSelectors = engineFieldValuesAdapter.getSelectors(
   (state: RootState) => state.project.present.entities.engineFieldValues
 );
+export const getPrefabActorIds = (state: RootState) =>
+  state.project.present.entities.prefabActorIds;
+
 export const getPrefabActors = createSelector(
-  [
-    (state: RootState) => state.project.present.entities.prefabActorIds,
-    actorSelectors.selectEntities,
-  ],
+  [getPrefabActorIds, actorSelectors.selectEntities],
   (prefabActorIds, actorsLookup) =>
     prefabActorIds
       .map((actorId) => actorsLookup[actorId])

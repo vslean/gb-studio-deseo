@@ -14,6 +14,7 @@ import { NavigatorCustomEvents } from "./NavigatorCustomEvents";
 import { Button } from "ui/buttons/Button";
 import { PlusIcon } from "ui/icons/Icons";
 import { NavigatorVariables } from "./NavigatorVariables";
+import { NavigatorPrefabs } from "./NavigatorPrefabs";
 
 const COLLAPSED_SIZE = 30;
 const REOPEN_SIZE = 205;
@@ -41,7 +42,7 @@ export const Navigator = () => {
   const [onDragStart, togglePane] = useSplitPane({
     sizes: splitSizes,
     setSizes: updateSplitSizes,
-    minSizes: [COLLAPSED_SIZE, COLLAPSED_SIZE, COLLAPSED_SIZE],
+    minSizes: [COLLAPSED_SIZE, COLLAPSED_SIZE, COLLAPSED_SIZE, COLLAPSED_SIZE],
     collapsedSize: COLLAPSED_SIZE,
     reopenSize: REOPEN_SIZE,
     maxTotal: height,
@@ -53,12 +54,22 @@ export const Navigator = () => {
     dispatch(editorActions.setTool({ tool: "scene" }));
   };
 
+  const onAddPrefabActor = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    dispatch(entitiesActions.addPrefabActor());
+    if (Math.floor(splitSizes[1]) <= COLLAPSED_SIZE) {
+      togglePane(1);
+    }
+  };
+
   const onAddCustomEvent = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.stopPropagation();
     dispatch(entitiesActions.addCustomEvent());
-    if (Math.floor(splitSizes[1]) <= COLLAPSED_SIZE) {
+    if (Math.floor(splitSizes[2]) <= COLLAPSED_SIZE) {
       togglePane(1);
     }
   };
@@ -93,6 +104,26 @@ export const Navigator = () => {
             <Button
               variant="transparent"
               size="small"
+              title={l10n("SIDEBAR_CREATE_PREFAB")}
+              onClick={onAddPrefabActor}
+            >
+              <PlusIcon />
+            </Button>
+          }
+        >
+          {l10n("SIDEBAR_PREFABS")}
+        </SplitPaneHeader>
+        <NavigatorPrefabs height={splitSizes[1] - 30} />
+      </Pane>
+      <SplitPaneVerticalDivider onMouseDown={onDragStart(1)} />
+      <Pane style={{ height: splitSizes[2] }}>
+        <SplitPaneHeader
+          onToggle={() => togglePane(2)}
+          collapsed={Math.floor(splitSizes[2]) <= COLLAPSED_SIZE}
+          buttons={
+            <Button
+              variant="transparent"
+              size="small"
               title={l10n("SIDEBAR_CREATE_CUSTOM_EVENT")}
               onClick={onAddCustomEvent}
             >
@@ -102,17 +133,18 @@ export const Navigator = () => {
         >
           {l10n("SIDEBAR_CUSTOM_EVENTS")}
         </SplitPaneHeader>
-        <NavigatorCustomEvents height={splitSizes[1] - 30} />
+        <NavigatorCustomEvents height={splitSizes[2] - 30} />
       </Pane>
-      <SplitPaneVerticalDivider onMouseDown={onDragStart(1)} />
-      <Pane style={{ height: splitSizes[2] }}>
+
+      <SplitPaneVerticalDivider onMouseDown={onDragStart(2)} />
+      <Pane style={{ height: splitSizes[3] }}>
         <SplitPaneHeader
-          onToggle={() => togglePane(2)}
-          collapsed={Math.floor(splitSizes[2]) <= COLLAPSED_SIZE}
+          onToggle={() => togglePane(3)}
+          collapsed={Math.floor(splitSizes[3]) <= COLLAPSED_SIZE}
         >
           {l10n("SIDEBAR_VARIABLES")}
         </SplitPaneHeader>
-        <NavigatorVariables height={splitSizes[2] - 30} />
+        <NavigatorVariables height={splitSizes[3] - 30} />
       </Pane>
     </Wrapper>
   );

@@ -33,6 +33,7 @@ export type EditorSelectionType =
   | "actor"
   | "trigger"
   | "customEvent"
+  | "prefabActor"
   | "variable";
 
 export type ZoomSection =
@@ -171,7 +172,7 @@ export const initialState: EditorState = {
   navigatorSidebarWidth: 200,
   filesSidebarWidth: 300,
   clipboardVariables: [],
-  navigatorSplitSizes: [300, 100, 100],
+  navigatorSplitSizes: [300, 100, 100, 100],
   focusSceneId: "",
   selectedSpriteSheetId: "",
   selectedSpriteStateId: "",
@@ -287,6 +288,12 @@ const editorSlice = createSlice({
       state.type = "customEvent";
       state.scene = "";
       state.entityId = action.payload.customEventId;
+    },
+
+    selectPrefabActor: (state, action: PayloadAction<{ actorId: string }>) => {
+      state.type = "prefabActor";
+      state.scene = "";
+      state.entityId = action.payload.actorId;
     },
 
     selectVariable: (state, action: PayloadAction<{ variableId: string }>) => {

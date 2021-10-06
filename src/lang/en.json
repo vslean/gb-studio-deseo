@@ -56,6 +56,7 @@
   "SIDEBAR_ADD_EVENT": "Add Event",
   "SIDEBAR_CUSTOM_EVENTS": "Scripts",
   "SIDEBAR_CREATE_CUSTOM_EVENT": "Create Script",
+  "SIDEBAR_CREATE_PREFAB": "Create Prefab",
   "SIDEBAR_PARAMETERS": "Parameters",
   "SIDEBAR_ON_INIT": "On Init",
   "SIDEBAR_ON_TRIGGER": "On Trigger",
@@ -68,6 +69,7 @@
   "SIDEBAR_SCENES": "Scenes",
   "SIDEBAR_VARIABLES": "Variables",
   "SIDEBAR_VARIABLE_USES": "Variable Uses",
+  "SIDEBAR_PREFABS": "Prefabs",
 
   "// 6": "Form Fields ----------------------------------------------",
   "FIELD_NAME": "Name",

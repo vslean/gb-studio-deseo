@@ -456,7 +456,7 @@ export const sceneName = (scene: Scene, sceneIndex: number) => {
 };
 
 export const prefabActorName = (actor: Actor, actorIndex: number) => {
-  return actor.name || `${l10n("PREFAB")} ${actorIndex + 1}`;
+  return actor.name || `${l10n("FIELD_PREFAB")} ${actorIndex + 1}`;
 };
 
 export const customEventName = (
