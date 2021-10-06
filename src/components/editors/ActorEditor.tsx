@@ -275,12 +275,20 @@ export const ActorEditor: FC<ActorEditorProps> = ({
 
   const onRemove = () => {
     if (actor) {
-      dispatch(
-        entitiesActions.removeActor({
-          actorId: actor.id,
-          sceneId: sceneId || "",
-        })
-      );
+      if (isPrefab) {
+        dispatch(
+          entitiesActions.removePrefabActor({
+            actorId: actor.id,
+          })
+        );
+      } else {
+        dispatch(
+          entitiesActions.removeActor({
+            actorId: actor.id,
+            sceneId: sceneId || "",
+          })
+        );
+      }
     }
   };
 
@@ -387,7 +395,9 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                   )}
                 <MenuDivider />
                 <MenuItem onClick={onRemove}>
-                  {l10n("MENU_DELETE_ACTOR")}
+                  {isPrefab
+                    ? l10n("MENU_DELETE_ACTOR_PREFAB")
+                    : l10n("MENU_DELETE_ACTOR")}
                 </MenuItem>
               </DropdownButton>
             </FormHeader>

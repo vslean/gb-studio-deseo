@@ -710,6 +710,7 @@
   "MENU_COPY_ACTOR": "Copy Actor",
   "MENU_PASTE_ACTOR": "Paste Actor",
   "MENU_DELETE_ACTOR": "Delete Actor",
+  "MENU_DELETE_ACTOR_PREFAB": "Delete Actor Prefab",
   "MENU_COPY_TRIGGER": "Copy Trigger",
   "MENU_PASTE_TRIGGER": "Paste Trigger",
   "MENU_DELETE_TRIGGER": "Delete Trigger",
