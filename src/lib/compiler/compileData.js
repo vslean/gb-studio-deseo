@@ -71,6 +71,7 @@ import {
   walkDenormalizedSceneEvents,
   walkDenormalizedScenesEvents,
 } from "lib/helpers/eventHelpers";
+import { mergePrefabActor } from "store/features/entities/entitiesHelpers";
 
 const indexById = indexBy("id");
 
@@ -883,6 +884,20 @@ export const precompileScenes = (
   return scenesData;
 };
 
+const mergePrefabs = (projectData) => {
+  const prefabsLookup = keyBy(projectData.prefabActors, "id");
+  return {
+    ...projectData,
+    scenes: projectData.scenes.map((scene) => ({
+      ...scene,
+      actors: scene.actors.map((actor) => {
+        const prefabActor = actor.prefabId && prefabsLookup[actor.prefabId];
+        return mergePrefabActor(actor, prefabActor);
+      }),
+    })),
+  };
+};
+
 const precompile = async (
   projectData,
   projectRoot,
@@ -1052,10 +1067,17 @@ const compile = async (
     );
   }
 
-  const precompiled = await precompile(projectData, projectRoot, tmpPath, {
-    progress,
-    warnings,
-  });
+  const projectDataWithMergedPrefabs = mergePrefabs(projectData);
+
+  const precompiled = await precompile(
+    projectDataWithMergedPrefabs,
+    projectRoot,
+    tmpPath,
+    {
+      progress,
+      warnings,
+    }
+  );
 
   const customColorsEnabled = projectData.settings.customColorsEnabled;
   const isSGB = projectData.settings.sgbEnabled;

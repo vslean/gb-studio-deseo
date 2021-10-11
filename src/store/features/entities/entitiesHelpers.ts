@@ -477,6 +477,7 @@ export const mergePrefabActor = (
   return {
     ...prefabActor,
     ...overrides,
+    id: actor.id,
     name: actor.name,
     x: actor.x,
     y: actor.y,
