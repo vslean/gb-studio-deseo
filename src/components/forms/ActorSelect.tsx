@@ -11,10 +11,14 @@ import {
 import {
   actorSelectors,
   customEventSelectors,
+  getPrefabActorIds,
   getSceneActorIds,
   sceneSelectors,
 } from "store/features/entities/entitiesState";
-import { actorName } from "store/features/entities/entitiesHelpers";
+import {
+  actorName,
+  prefabActorName,
+} from "store/features/entities/entitiesHelpers";
 import l10n from "lib/helpers/l10n";
 import SpriteSheetCanvas from "components/world/SpriteSheetCanvas";
 
@@ -70,7 +74,13 @@ export const ActorSelect = ({
   const customEvent = useSelector((state: RootState) =>
     customEventSelectors.selectById(state, contextEntityId)
   );
-  const selfIndex = sceneActorIds?.indexOf(contextEntityId);
+  const prefabActorIds = useSelector((state: RootState) =>
+    getPrefabActorIds(state)
+  );
+  const selfIndex =
+    editorType === "prefabActor"
+      ? prefabActorIds.indexOf(contextEntityId) || 0
+      : sceneActorIds?.indexOf(contextEntityId) || 0;
   const selfActor = actorsLookup[contextEntityId];
   const playerSpriteSheetId =
     scenePlayerSpriteSheetId || (sceneType && defaultPlayerSprites[sceneType]);
@@ -89,6 +99,27 @@ export const ActorSelect = ({
             value: actor.id,
           };
         }),
+      ]);
+    } else if (editorType === "prefabActor") {
+      setOptions([
+        {
+          label: "Player",
+          value: "player",
+          spriteSheetId: playerSpriteSheetId,
+        },
+        ...(selfActor && selfIndex !== undefined
+          ? [
+              {
+                label: `${l10n("FIELD_SELF")} (${prefabActorName(
+                  selfActor,
+                  selfIndex
+                )})`,
+                value: "$self$",
+                spriteSheetId: selfActor.spriteSheetId,
+                direction: selfActor.direction,
+              },
+            ]
+          : []),
       ]);
     } else if (sceneActorIds) {
       setOptions([
