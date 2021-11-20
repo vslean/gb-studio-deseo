@@ -129,7 +129,12 @@ const SceneInfo = () => {
       scene.actors.forEach((actorId) => {
         const actor = actorsLookup[actorId];
         if (actor) {
-          addSprite(actor.spriteSheetId);
+          const prefabActor = actorsLookup[actor.prefabId || ""];
+          if (prefabActor) {
+            addSprite(prefabActor.spriteSheetId);
+          } else {
+            addSprite(actor.spriteSheetId);
+          }
         }
       });
       // Player sprite
