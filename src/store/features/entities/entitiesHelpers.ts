@@ -362,6 +362,12 @@ export const walkNormalisedSceneEvents = (
   scene.actors.forEach((actorId) => {
     const actor = actorsLookup[actorId];
     if (actor) {
+      const prefabActor = actorsLookup[actor.prefabId || ""];
+      if (prefabActor) {
+        walkNormalisedActorEvents(prefabActor, lookup, callback);
+      } else {
+        walkNormalisedActorEvents(actor, lookup, callback);
+      }
       walkNormalisedActorEvents(actor, lookup, callback);
     }
   });
