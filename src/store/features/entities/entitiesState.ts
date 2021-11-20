@@ -2018,6 +2018,9 @@ const removePrefabActor: CaseReducer<
   PayloadAction<{ actorId: string }>
 > = (state, action) => {
   actorsAdapter.removeOne(state.actors, action.payload.actorId);
+  state.prefabActorIds = state.prefabActorIds.filter(
+    (id) => id !== action.payload.actorId
+  );
 };
 
 /**************************************************************************
