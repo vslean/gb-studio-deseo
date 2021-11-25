@@ -33,10 +33,9 @@ const SongGrid = styled.div`
 
 const SongGridHeader = styled.div`
   display: flex;
-  position: -webkit-sticky;
   position: absolute;
   top: 0;
-  left: 90px;
+  left: 94px;
   z-index: 1;
   white-space: nowrap;
   background: ${(props) => props.theme.colors.tracker.background};
@@ -393,8 +392,9 @@ export const SongTracker = ({
         width: "100%",
       }}
     >
-      <div style={{ position: "relative", minWidth: "85px" }}>
+      <div style={{ position: "relative", minWidth: "93px" }}>
         <SequenceEditor
+          direction="vertical"
           sequence={song?.sequence}
           patterns={song?.patterns.length}
           playingSequence={playbackState[0]}

@@ -5,7 +5,7 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { readFile } from "fs-extra";
+import { copy, pathExists, readFile } from "fs-extra";
 import cloneDeep from "lodash/cloneDeep";
 import { writeFileWithBackupAsync } from "lib/helpers/fs/writeFileWithBackup";
 import { PatternCell } from "lib/helpers/uge/song/PatternCell";
@@ -17,6 +17,7 @@ import {
   NoiseInstrument,
   WaveInstrument,
 } from "./trackerDocumentTypes";
+import { projectTemplatesRoot } from "../../../consts";
 
 export interface TrackerDocumentState {
   status: "loading" | "error" | "loaded" | null;
@@ -30,6 +31,40 @@ export const initialState: TrackerDocumentState = {
   error: "",
   modified: false,
 };
+
+export const addNewSongFile = createAsyncThunk<string | null, string>(
+  "tracker/addNewSong",
+  async (path, _thunkApi): Promise<string | null> => {
+    const templatePath = `${projectTemplatesRoot}/gbhtml/assets/music/template.uge`;
+    const copy2 = async (oPath: string, path: string) => {
+      try {
+        const exists = await pathExists(path);
+        if (!exists) {
+          await copy(oPath, path, {
+            overwrite: false,
+            errorOnExist: true,
+          });
+          return path;
+        } else {
+          const [filename] = path.split(".uge");
+          const matches = filename.match(/\d+$/);
+          let newFilename = `${filename} 1`;
+          if (matches) {
+            // if filename ends with number
+            const number = parseInt(matches[0]) + 1;
+            newFilename = filename.replace(/\d+$/, `${number}`);
+          }
+          const newPath = `${newFilename}.uge`;
+          await copy2(oPath, newPath);
+          return newPath;
+        }
+      } catch (e) {
+        throw new Error(e);
+      }
+    };
+    return await copy2(templatePath, path);
+  }
+);
 
 export const loadSongFile = createAsyncThunk<Song | null, string>(
   "tracker/loadSong",
@@ -240,13 +275,79 @@ const trackerSlice = createSlice({
         return;
       }
 
-      const newSequence = state.song.sequence;
-      newSequence[_action.payload.sequenceIndex] = _action.payload.sequenceId;
+      const newSequence = [...state.song.sequence];
+
+      // Assign a new empty pattern
+      if (_action.payload.sequenceId === -1) {
+        const newPatterns = [...state.song.patterns];
+        const pattern = [];
+        for (let n = 0; n < 64; n++)
+          pattern.push([
+            new PatternCell(),
+            new PatternCell(),
+            new PatternCell(),
+            new PatternCell(),
+          ]);
+        newPatterns.push(pattern);
+
+        newSequence[_action.payload.sequenceIndex] = newPatterns.length - 1;
+
+        state.song = {
+          ...state.song,
+          patterns: newPatterns,
+          sequence: newSequence,
+        };
+      } else {
+        newSequence[_action.payload.sequenceIndex] = _action.payload.sequenceId;
+
+        state.song = {
+          ...state.song,
+          sequence: newSequence,
+        };
+      }
+    },
+    addSequence: (state) => {
+      if (!state.song) {
+        return;
+      }
+
+      const newPatterns = [...state.song.patterns];
+      const pattern = [];
+      for (let n = 0; n < 64; n++)
+        pattern.push([
+          new PatternCell(),
+          new PatternCell(),
+          new PatternCell(),
+          new PatternCell(),
+        ]);
+      newPatterns.push(pattern);
+
+      const newSequence = [...state.song.sequence];
+      newSequence.push(newPatterns.length - 1);
 
       state.song = {
         ...state.song,
+        patterns: newPatterns,
         sequence: newSequence,
       };
+    },
+    removeSequence: (
+      state,
+      _action: PayloadAction<{ sequenceIndex: number }>
+    ) => {
+      if (!state.song) {
+        return;
+      }
+
+      const newSequence = [...state.song.sequence];
+      if (newSequence.length > 1) {
+        newSequence.splice(_action.payload.sequenceIndex, 1);
+
+        state.song = {
+          ...state.song,
+          sequence: newSequence,
+        };
+      }
     },
     transposeNoteCell: (
       state,
@@ -300,13 +401,24 @@ const trackerSlice = createSlice({
           state.modified = false;
         }
       })
+      .addCase(addNewSongFile.pending, (state, action) => {
+        console.log(state, action);
+      })
+      .addCase(addNewSongFile.rejected, (state, action) => {
+        console.error(action.error);
+      })
+      .addCase(addNewSongFile.fulfilled, (state, action) => {
+        console.log(state, action);
+      })
       .addCase(saveSongFile.fulfilled, (state, _action) => {
         state.modified = false;
       })
       .addMatcher(
         (action: AnyAction): action is AnyAction =>
           action.type.startsWith("tracker/edit") ||
-          action.type.startsWith("tracker/transpose"),
+          action.type.startsWith("tracker/transpose") ||
+          action.type.startsWith("tracker/addSequence") ||
+          action.type.startsWith("tracker/removeSequence"),
         (state, _action) => {
           state.modified = true;
         }

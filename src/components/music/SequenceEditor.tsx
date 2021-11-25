@@ -4,7 +4,7 @@ import editorActions from "store/features/editor/editorActions";
 import { RootState } from "store/configureStore";
 import styled, { css } from "styled-components";
 import { Select } from "ui/form/Select";
-// import { PlusIcon } from "ui/icons/Icons";
+import { PlusIcon } from "ui/icons/Icons";
 import trackerDocumentActions from "store/features/trackerDocument/trackerDocumentActions";
 
 interface SequenceOption {
@@ -16,7 +16,7 @@ interface SequenceEditorProps {
   patterns?: number;
   playingSequence: number;
   height?: number;
-  direction?: "vertical" | "horizontal";
+  direction: "vertical" | "horizontal";
 }
 
 interface SequenceItemProps {
@@ -24,9 +24,13 @@ interface SequenceItemProps {
   selected: boolean;
 }
 
+const Wrapper = styled.div`
+  background-color: ${(props) => props.theme.colors.tracker.background};
+`;
+
 const SequenceItem = styled.div<SequenceItemProps>`
   border: 1px solid ${(props) => props.theme.colors.tracker.border};
-  background-color: ${(props) => props.theme.colors.tracker.background};
+  background-color: ${(props) => props.theme.colors.button.nestedBackground};
   color: ${(props) => props.theme.colors.input.text};
   padding: 4px;
   margin: 6px;
@@ -40,19 +44,20 @@ const SequenceItem = styled.div<SequenceItemProps>`
       : ""}
 `;
 
-// const AddSequenceButton = styled.button`
-//   background: ${(props) => props.theme.colors.button.nestedBackground};
-//   width: 50px;
-//   height: 50px;
-//   border: 0;
-//   border-radius: 4px;
-//   svg {
-//     fill: ${(props) => props.theme.colors.button.text};
-//   }
-//   :hover {
-//     background: ${(props) => props.theme.colors.button.nestedActiveBackground};
-//   }
-// `;
+const AddSequenceButton = styled.button`
+  background: ${(props) => props.theme.colors.button.nestedBackground};
+  min-width: 60px;
+  min-height: 56px;
+  margin: 8px;
+  border: 0;
+  border-radius: 4px;
+  svg {
+    fill: ${(props) => props.theme.colors.button.text};
+  }
+  :hover {
+    background: ${(props) => props.theme.colors.button.nestedActiveBackground};
+  }
+`;
 
 export const SequenceEditorFwd = ({
   sequence,
@@ -75,6 +80,16 @@ export const SequenceEditorFwd = ({
     },
     [dispatch]
   );
+  useEffect(() => {
+    if (sequence) {
+      if (sequenceId >= sequence?.length) {
+        setSequenceId(sequence.length - 1);
+      }
+      if (sequenceId < 0) {
+        setSequenceId(0);
+      }
+    }
+  }, [dispatch, sequence, sequenceId, setSequenceId]);
 
   const play = useSelector((state: RootState) => state.tracker.playing);
 
@@ -84,10 +99,17 @@ export const SequenceEditorFwd = ({
 
   const sequenceOptions: SequenceOption[] = Array.from(
     Array(patterns || 0).keys()
-  ).map((i) => ({
-    value: i,
-    label: `${i}`.padStart(2, "0"),
-  }));
+  )
+    .map((i) => ({
+      value: i,
+      label: `${i}`.padStart(2, "0"),
+    }))
+    .concat([
+      {
+        value: -1,
+        label: `${(patterns || 1).toString().padStart(2, "0")} (New)`,
+      },
+    ]);
 
   const editSequence = useCallback(
     (index: number, newValue: SequenceOption) => {
@@ -101,20 +123,52 @@ export const SequenceEditorFwd = ({
     [dispatch]
   );
 
+  const onAddSequence = useCallback(() => {
+    dispatch(trackerDocumentActions.addSequence());
+  }, [dispatch]);
+
+  const onRemoveSequence = useCallback(() => {
+    dispatch(
+      trackerDocumentActions.removeSequence({ sequenceIndex: sequenceId })
+    );
+  }, [dispatch, sequenceId]);
+
   const handleKeys = useCallback(
     (e: KeyboardEvent) => {
-      if (!hasFocus || selectHasFocus) {
+      if (!sequence || !hasFocus || selectHasFocus) {
         return;
       }
-      if (e.key === "ArrowUp") {
+      if (
+        (direction === "vertical" && e.key === "ArrowUp") ||
+        (direction === "horizontal" && e.key === "ArrowLeft")
+      ) {
         e.preventDefault();
-        setSequenceId(sequenceId - 1);
-      } else if (e.key === "ArrowDown") {
+        const id = sequenceId - 1;
+        setSequenceId(
+          ((id % sequence.length) + sequence.length) % sequence.length
+        );
+      } else if (
+        (direction === "vertical" && e.key === "ArrowDown") ||
+        (direction === "horizontal" && e.key === "ArrowRight")
+      ) {
         e.preventDefault();
-        setSequenceId(sequenceId + 1);
+        const id = sequenceId + 1;
+        setSequenceId(
+          ((id % sequence.length) + sequence.length) % sequence.length
+        );
+      } else if (e.key === "Backspace") {
+        onRemoveSequence();
       }
     },
-    [hasFocus, selectHasFocus, sequenceId, setSequenceId]
+    [
+      direction,
+      hasFocus,
+      onRemoveSequence,
+      selectHasFocus,
+      sequence,
+      sequenceId,
+      setSequenceId,
+    ]
   );
 
   useEffect(() => {
@@ -128,7 +182,7 @@ export const SequenceEditorFwd = ({
   });
 
   return (
-    <div
+    <Wrapper
       tabIndex={0}
       style={{
         height,
@@ -141,29 +195,28 @@ export const SequenceEditorFwd = ({
     >
       {sequence &&
         sequence.map((item, i) => (
-          <div>
-            <SequenceItem
-              onClick={() => setSequenceId(i)}
-              selected={i === sequenceId}
-              active={playingSequence === i}
-            >
-              <div style={{ padding: "0 0 2px 2px" }}>{i}:</div>
-              <Select
-                value={sequenceOptions.find((i) => i.value === item)}
-                options={sequenceOptions}
-                onFocus={() => setSelectHasFocus(true)}
-                onBlur={() => setSelectHasFocus(false)}
-                onChange={(newValue: SequenceOption) => {
-                  editSequence(i, newValue);
-                }}
-              />
-            </SequenceItem>
-          </div>
+          <SequenceItem
+            key={i}
+            onClick={() => setSequenceId(i)}
+            selected={i === sequenceId}
+            active={playingSequence === i}
+          >
+            <div style={{ padding: "0 0 2px 2px" }}>{i}:</div>
+            <Select
+              value={sequenceOptions.find((i) => i.value === item)}
+              options={sequenceOptions}
+              onFocus={() => setSelectHasFocus(true)}
+              onBlur={() => setSelectHasFocus(false)}
+              onChange={(newValue: SequenceOption) => {
+                editSequence(i, newValue);
+              }}
+            />
+          </SequenceItem>
         ))}
-      {/* <AddSequenceButton>
-        <PlusIcon/>
-      </AddSequenceButton> */}
-    </div>
+      <AddSequenceButton onClick={onAddSequence}>
+        <PlusIcon />
+      </AddSequenceButton>
+    </Wrapper>
   );
 };
 
