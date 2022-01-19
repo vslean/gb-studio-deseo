@@ -476,6 +476,7 @@ export const compileScene = (
       ),
       palette: toFarPtr(paletteSymbol(bgPalette)),
       sprite_palette: toFarPtr(paletteSymbol(actorsPalette)),
+      exclusive_sprite: scene.actorsExclusiveLookup["player"] ?? 0,
       player_sprite: toFarPtr(spriteSheetSymbol(scene.playerSpriteIndex)),
       n_actors: scene.actors.length,
       n_triggers: scene.triggers.length,
