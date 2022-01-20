@@ -1711,7 +1711,7 @@ VM_ACTOR_SET_SPRITESHEET_BY_REF .ARG2, .ARG1`,
     `extern const UBYTE start_player_move_speed;\n` +
     `extern const UBYTE start_player_anim_tick;\n\n` +
     `extern const far_ptr_t ui_fonts[];\n\n` +
-    `void bootstrap_init() __banked;\n\n` +
+    `void bootstrap_init() BANKED;\n\n` +
     `#endif\n`;
 
   output[`states_defines.h`] =
