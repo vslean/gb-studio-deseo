@@ -485,6 +485,9 @@
   "FIELD_DEFAULT_SPRITE_PALETTES": "Default Sprite Palettes",
   "FIELD_CUSTOM_HTML_HEADER": "Custom HTML Header",
   "FIELD_SEARCH_SETTINGS": "Search Settings...",
+  "FIELD_REPORT_BUG": "Report bug",
+  "FIELD_GBSTUDIO_DESCRIPTION": "Visual retro game maker",
+  "FIELD_GBSTUDIO_COPYRIGHT": "Distributed under MIT license.",
 
   "// 7": "Asset Viewer ---------------------------------------------",
   "ASSET_SEARCH": "Search...",

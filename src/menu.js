@@ -48,7 +48,13 @@ const off = (event, fn) => {
 const openAbout = () => {
   return openAboutWindow({
     icon_path: `${assetsRoot}/app/icon/app_icon.png`,
-    bug_link_text: `Report bug (git: ${COMMITHASH})`,
+    bug_link_text: `${l10n("FIELD_REPORT_BUG")} (git: ${COMMITHASH})`,
+    // eslint-disable-next-line camelcase
+    win_options: {
+      title: l10n("MENU_ABOUT"),
+    },
+    description: l10n("FIELD_GBSTUDIO_DESCRIPTION"),
+    copyright: l10n("FIELD_GBSTUDIO_COPYRIGHT"),
   });
 };
 
