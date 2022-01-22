@@ -30,18 +30,18 @@ import { ZoomSection } from "store/features/editor/editorState";
 import useWindowFocus from "ui/hooks/use-window-focus";
 import useWindowSize from "ui/hooks/use-window-size";
 
-const sectionNames = {
-  world: l10n("NAV_GAME_WORLD"),
-  sprites: l10n("NAV_SPRITES"),
-  backgrounds: l10n("NAV_BACKGROUNDS"),
-  music: l10n("NAV_MUSIC"),
-  palettes: l10n("NAV_PALETTES"),
-  dialogue: l10n("NAV_DIALOGUE_REVIEW"),
-  build: l10n("NAV_BUILD_AND_RUN"),
-  settings: l10n("NAV_SETTINGS"),
+const sectionL10NKeys = {
+  world: "NAV_GAME_WORLD",
+  sprites: "NAV_SPRITES",
+  backgrounds: "NAV_BACKGROUNDS",
+  music: "NAV_MUSIC",
+  palettes: "NAV_PALETTES",
+  dialogue: "NAV_DIALOGUE_REVIEW",
+  build: "NAV_BUILD_AND_RUN",
+  settings: "NAV_SETTINGS",
 };
 
-type SectionKey = keyof typeof sectionNames;
+type SectionKey = keyof typeof sectionL10NKeys;
 
 const sectionAccelerators = {
   world: "CommandOrControl+1",
@@ -160,17 +160,17 @@ const AppToolbar: FC = () => {
       <DropdownButton
         label={
           <span style={{ textAlign: "left", minWidth: 106 }}>
-            {sectionNames[section]}
+            {l10n(sectionL10NKeys[section])}
           </span>
         }
       >
-        {Object.keys(sectionNames).map((key: string) => (
+        {Object.keys(sectionL10NKeys).map((key: string) => (
           <MenuItem
             key={key}
             onClick={setSection(key as NavigationSection)}
             style={{ minWidth: 150 }}
           >
-            {sectionNames[key as NavigationSection]}
+            {l10n(sectionL10NKeys[key as NavigationSection])}
             {sectionAccelerators[key as NavigationSection] && (
               <MenuAccelerator
                 accelerator={sectionAccelerators[key as NavigationSection]}

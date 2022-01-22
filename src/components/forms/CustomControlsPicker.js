@@ -12,19 +12,19 @@ import { SettingRowInput, SettingRowLabel } from "ui/form/SettingRow";
 const directions = [
   {
     key: "up",
-    label: l10n("FIELD_DIRECTION_UP"),
+    label: "FIELD_DIRECTION_UP",
   },
   {
     key: "down",
-    label: l10n("FIELD_DIRECTION_DOWN"),
+    label: "FIELD_DIRECTION_DOWN",
   },
   {
     key: "left",
-    label: l10n("FIELD_DIRECTION_LEFT"),
+    label: "FIELD_DIRECTION_LEFT",
   },
   {
     key: "right",
-    label: l10n("FIELD_DIRECTION_RIGHT"),
+    label: "FIELD_DIRECTION_RIGHT",
   },
 ];
 
@@ -133,9 +133,9 @@ class CustomControlsPicker extends Component {
           <SearchableSettingRow
             key={direction.key}
             searchTerm={searchTerm}
-            searchMatches={[direction.label]}
+            searchMatches={[l10n(direction.label)]}
           >
-            <SettingRowLabel>{direction.label}</SettingRowLabel>
+            <SettingRowLabel>{l10n(direction.label)}</SettingRowLabel>
 
             <SettingRowInput>
               <Input
