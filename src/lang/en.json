@@ -793,6 +793,14 @@
   "MENU_SPRITE_STATE_DELETE": "Delete Animation State",
   "MENU_OPEN_MUSIC_PROCESS_WINDOW": "Open Music Process Window",
   "MENU_PATTERN_DELETE": "Delete Pattern",
+  "MENU_CLOSE": "Close",
+  "MENU_CUT": "Cut",
+  "MENU_COPY": "Copy",
+  "MENU_PASTE": "Paste",
+  "MENU_DELETE": "Delete",
+  "MENU_SELECT_ALL": "Select All",
+  "MENU_WINDOW": "Window",
+  "MENU_HELP": "Help",
 
   "// 11": "Warnings -----------------------------------------------------",
 
