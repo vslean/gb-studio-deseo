@@ -12,19 +12,19 @@ import { SettingRowInput, SettingRowLabel } from "ui/form/SettingRow";
 const directions = [
   {
     key: "up",
-    label: "Up",
+    label: l10n("FIELD_DIRECTION_UP"),
   },
   {
     key: "down",
-    label: "Down",
+    label: l10n("FIELD_DIRECTION_DOWN"),
   },
   {
     key: "left",
-    label: "Left",
+    label: l10n("FIELD_DIRECTION_LEFT"),
   },
   {
     key: "right",
-    label: "Right",
+    label: l10n("FIELD_DIRECTION_RIGHT"),
   },
 ];
 
