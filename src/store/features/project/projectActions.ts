@@ -14,6 +14,7 @@ import {
   FontData,
   AvatarData,
   EmoteData,
+  Asset,
 } from "../entities/entitiesTypes";
 import type { RootState } from "store/configureStore";
 import loadProjectData from "lib/project/loadProjectData";
@@ -28,12 +29,13 @@ import { MetadataState } from "../metadata/metadataState";
 import parseAssetPath from "lib/helpers/path/parseAssetPath";
 import {
   denormalizeEntities,
-  genEntitySymbol,
+  mergeEntityAsset,
+  storeRemovedAssetInInodeCache,
 } from "../entities/entitiesHelpers";
 import { matchAsset } from "../entities/entitiesHelpers";
 import { loadAvatarData } from "lib/project/loadAvatarData";
 import { loadEmoteData } from "lib/project/loadEmoteData";
-import { pick } from "lodash";
+import pick from "lodash/pick";
 
 let saving = false;
 
@@ -117,7 +119,7 @@ export const trimDenormalisedProject = (data: ProjectData): ProjectData => {
 };
 
 const inodeToRecentBackground: Dictionary<Background> = {};
-const inodeToRecentSpriteSheet: Dictionary<SpriteSheet> = {};
+const inodeToRecentMusicTrack: Dictionary<Music> = {};
 
 const openProject = createAction<string>("project/openProject");
 const closeProject = createAction<void>("project/closeProject");
@@ -156,53 +158,31 @@ const loadBackground = createAsyncThunk<{ data: Background }, string>(
       throw new Error("Unable to load background");
     }
 
-    // Make sure symbol is unique
-    const newSymbol = genEntitySymbol(
-      state.project.present.entities,
-      data.symbol
+    const mergedData: Background = mergeEntityAsset(
+      state.project.present.entities.backgrounds,
+      data,
+      ["id", "symbol"]
     );
 
-    const backgrounds = state.project.present.entities.backgrounds.ids.map(
-      (id) => state.project.present.entities.backgrounds.entities[id]
-    ) as Background[];
-
-    const existingAsset =
-      backgrounds.find(matchAsset(data)) || inodeToRecentBackground[data.inode];
-
-    const existingId = existingAsset?.id;
-
-    if (existingId) {
-      delete inodeToRecentBackground[data.inode];
-      return {
-        data: {
-          ...existingAsset,
-          ...data,
-          id: existingId,
-          symbol: existingAsset ? existingAsset.symbol : newSymbol,
-        },
-      };
-    }
-
     return {
-      data: {
-        ...data,
-        symbol: newSymbol,
-      },
+      data: mergedData,
     };
   }
 );
 
 const removeBackground = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeBackground", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const { file, plugin } = parseAssetPath(filename, projectRoot, "backgrounds");
-  return {
-    filename: file,
-    plugin,
-  };
+  const asset: Asset = storeRemovedAssetInInodeCache(
+    filename,
+    projectRoot,
+    "backgrounds",
+    state.project.present.entities.backgrounds
+  );
+  return asset;
 });
 
 /**************************************************************************
@@ -223,19 +203,11 @@ const loadSprite = createAsyncThunk<{ data: SpriteSheet }, string>(
       throw new Error("Unable to load sprite sheet");
     }
 
-    const spriteSheets = state.project.present.entities.spriteSheets.ids.map(
-      (id) => state.project.present.entities.spriteSheets.entities[id]
-    ) as SpriteSheet[];
-
-    const existingAsset =
-      spriteSheets.find(matchAsset(data)) ||
-      inodeToRecentSpriteSheet[data.inode];
-
-    if (existingAsset) {
-      delete inodeToRecentSpriteSheet[data.inode];
-      const oldAutoName = existingAsset.filename.replace(/.png/i, "");
-
-      const preferExisting = pick(existingAsset, [
+    const mergedData: SpriteSheet = mergeEntityAsset(
+      state.project.present.entities.spriteSheets,
+      data,
+      [
+        "id",
         "symbol",
         "states",
         "canvasWidth",
@@ -246,51 +218,27 @@ const loadSprite = createAsyncThunk<{ data: SpriteSheet }, string>(
         "boundsHeight",
         "animSpeed",
         "numTiles",
-      ]);
-
-      return {
-        data: {
-          ...existingAsset,
-          ...data,
-          id: existingAsset.id,
-          name:
-            existingAsset.name !== oldAutoName
-              ? existingAsset.name || data.name
-              : data.name,
-          ...preferExisting,
-        },
-      };
-    }
+      ]
+    );
 
     return {
-      data,
+      data: mergedData,
     };
   }
 );
 
 const removeSprite = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeSprite", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const { file, plugin } = parseAssetPath(filename, projectRoot, "sprites");
-
-  const spriteSheets = state.project.present.entities.spriteSheets.ids.map(
-    (id) => state.project.present.entities.spriteSheets.entities[id]
-  ) as SpriteSheet[];
-
-  const asset = {
-    filename: file,
-    plugin,
-  };
-
-  const existingAsset = spriteSheets.find(matchAsset(asset));
-
-  if (existingAsset) {
-    inodeToRecentSpriteSheet[existingAsset.inode] = existingAsset;
-  }
-
+  const asset: Asset = storeRemovedAssetInInodeCache(
+    filename,
+    projectRoot,
+    "sprites",
+    state.project.present.entities.spriteSheets
+  );
   return asset;
 });
 
@@ -309,26 +257,34 @@ const loadMusic = createAsyncThunk<{ data: Music }, string>(
       | undefined;
 
     if (!data) {
-      throw new Error("Unable to load sprite sheet");
+      throw new Error("Unable to load music");
     }
 
-    return {
+    const mergedData: Music = mergeEntityAsset(
+      state.project.present.entities.music,
       data,
+      ["id", "symbol", "settings"]
+    );
+
+    return {
+      data: mergedData,
     };
   }
 );
 
 const removeMusic = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeMusic", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const { file, plugin } = parseAssetPath(filename, projectRoot, "music");
-  return {
-    filename: file,
-    plugin,
-  };
+  const asset: Asset = storeRemovedAssetInInodeCache(
+    filename,
+    projectRoot,
+    "music",
+    state.project.present.entities.music
+  );
+  return asset;
 });
 
 /**************************************************************************

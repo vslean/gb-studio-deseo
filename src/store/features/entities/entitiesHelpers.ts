@@ -1,5 +1,6 @@
 import { normalize, denormalize, schema, NormalizedSchema } from "normalizr";
 import isEqual from "lodash/isEqual";
+import pick from "lodash/pick";
 import {
   ProjectEntitiesData,
   EntitiesState,
@@ -38,6 +39,7 @@ import {
 import { Dictionary, EntityId, EntityState } from "@reduxjs/toolkit";
 import l10n from "lib/helpers/l10n";
 import { genSymbol, toValidSymbol } from "lib/helpers/symbols";
+import parseAssetPath from "lib/helpers/path/parseAssetPath";
 
 export interface NormalisedEntities {
   scenes: Record<EntityId, Scene>;
@@ -89,6 +91,8 @@ type WalkNormalizedOptions =
         args?: Record<string, unknown>;
       };
     };
+
+const inodeToAssetCache: Dictionary<Asset> = {};
 
 const backgroundSchema = new schema.Entity("backgrounds");
 const musicSchema = new schema.Entity("music");
@@ -590,4 +594,61 @@ export const ensureSymbolsUnique = (state: EntitiesState) => {
   ensureEntitySymbolsUnique(state.variables, symbols);
   ensureEntitySymbolsUnique(state.customEvents, symbols);
   ensureEntitySymbolsUnique(state.music, symbols);
+};
+
+export const mergeEntityAsset = <T extends Asset & { inode: string }>(
+  entities: EntityState<T>,
+  entity: T,
+  keepProps: (keyof T)[]
+): T => {
+  const existingEntities = entities.ids.map(
+    (id) => entities.entities[id]
+  ) as T[];
+
+  // Check if asset already exists or was recently deleted
+  const existingAsset =
+    existingEntities.find(matchAsset(entity)) ||
+    inodeToAssetCache[entity.inode];
+
+  if (existingAsset) {
+    delete inodeToAssetCache[entity.inode];
+    const preferExisting = pick(existingAsset, keepProps);
+
+    return {
+      ...existingAsset,
+      ...entity,
+      ...preferExisting,
+    };
+  }
+
+  return entity;
+};
+
+export const storeRemovedAssetInInodeCache = <
+  T extends Asset & { inode: string }
+>(
+  filename: string,
+  projectRoot: string,
+  assetFolder: string,
+  entities: EntityState<T>
+): Asset => {
+  const { file, plugin } = parseAssetPath(filename, projectRoot, assetFolder);
+
+  const existingEntities = entities.ids.map(
+    (id) => entities.entities[id]
+  ) as T[];
+
+  const asset = {
+    filename: file,
+    plugin,
+  };
+
+  const existingAsset = existingEntities.find(matchAsset(asset));
+
+  if (existingAsset) {
+    // Store deleted asset in inode cache incase it was just being renamed
+    inodeToAssetCache[existingAsset.inode] = existingAsset;
+  }
+
+  return asset;
 };

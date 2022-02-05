@@ -262,13 +262,14 @@ const loadBackground: CaseReducer<
   } else {
     backgroundsAdapter.addOne(state.backgrounds, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const removeBackground: CaseReducer<
   EntitiesState,
   PayloadAction<{
     filename: string;
-    plugin: string | undefined;
+    plugin?: string;
   }>
 > = (state, action) => {
   const backgrounds = localBackgroundSelectors.selectAll(state);
@@ -313,6 +314,7 @@ const loadSprite: CaseReducer<
   } else {
     spriteSheetsAdapter.upsertOne(state.spriteSheets, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const loadDetectedSprite: CaseReducer<
@@ -365,7 +367,7 @@ const removeSprite: CaseReducer<
   EntitiesState,
   PayloadAction<{
     filename: string;
-    plugin: string | undefined;
+    plugin?: string;
   }>
 > = (state, action) => {
   const spriteSheets = localSpriteSheetSelectors.selectAll(state);
@@ -401,6 +403,7 @@ const loadMusic: CaseReducer<
   } else {
     musicAdapter.addOne(state.music, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const editMusicSettings: CaseReducer<
@@ -425,7 +428,7 @@ const removeMusic: CaseReducer<
   EntitiesState,
   PayloadAction<{
     filename: string;
-    plugin: string | undefined;
+    plugin?: string;
   }>
 > = (state, action) => {
   const music = localMusicSelectors.selectAll(state);
@@ -458,6 +461,7 @@ const loadFont: CaseReducer<
   } else {
     fontsAdapter.addOne(state.fonts, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const removeFont: CaseReducer<
@@ -497,6 +501,7 @@ const loadAvatar: CaseReducer<
   } else {
     avatarsAdapter.addOne(state.avatars, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const removeAvatar: CaseReducer<
@@ -536,6 +541,7 @@ const loadEmote: CaseReducer<
   } else {
     emotesAdapter.addOne(state.emotes, action.payload.data);
   }
+  ensureSymbolsUnique(state);
 };
 
 const removeEmote: CaseReducer<
