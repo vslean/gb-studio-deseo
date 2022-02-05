@@ -3015,7 +3015,7 @@ class ScriptBuilder {
         this._actorSetDirection(this._localRef(actorRef), asmDir);
       }
       this._raiseException("EXCEPTION_CHANGE_SCENE", 3);
-      this._importFarPtrData(scene.symbolName);
+      this._importFarPtrData(scene.symbol);
       this._addNL();
     }
   };

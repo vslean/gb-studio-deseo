@@ -59,7 +59,7 @@ interface Entity {
 export interface PrecompiledScene {
   id: string;
   name: string;
-  symbolName: string;
+  symbol: string;
   width: number;
   height: number;
   type: string;
@@ -479,7 +479,7 @@ export const compileScene = (
 ) => {
   return toStructDataFile(
     SCENE_TYPE,
-    scene.symbolName,
+    scene.symbol,
     `// Scene: ${sceneName(scene, sceneIndex)}`,
     // Data
     {
@@ -487,7 +487,7 @@ export const compileScene = (
       height: scene.height,
       type: `SCENE_TYPE_${scene.type}`,
       background: toFarPtr(scene.background.symbolName),
-      collisions: toFarPtr(sceneCollisionsSymbol(scene.symbolName)),
+      collisions: toFarPtr(sceneCollisionsSymbol(scene.symbol)),
       parallax_rows: compileParallax(
         scene.width > SCREEN_WIDTH ? scene.parallax : undefined
       ),
@@ -501,19 +501,19 @@ export const compileScene = (
       n_projectiles: scene.projectiles.length,
       actors:
         scene.actors.length > 0
-          ? toFarPtr(sceneActorsSymbol(scene.symbolName))
+          ? toFarPtr(sceneActorsSymbol(scene.symbol))
           : undefined,
       triggers:
         scene.triggers.length > 0
-          ? toFarPtr(sceneTriggersSymbol(scene.symbolName))
+          ? toFarPtr(sceneTriggersSymbol(scene.symbol))
           : undefined,
       sprites:
         scene.sprites.length > 0
-          ? toFarPtr(sceneSpritesSymbol(scene.symbolName))
+          ? toFarPtr(sceneSpritesSymbol(scene.symbol))
           : undefined,
       projectiles:
         scene.projectiles.length > 0
-          ? toFarPtr(sceneProjectilesSymbol(scene.symbolName))
+          ? toFarPtr(sceneProjectilesSymbol(scene.symbol))
           : undefined,
       script_init: maybeScriptFarPtr(eventPtrs[sceneIndex].start),
       script_p_hit1: maybeScriptFarPtr(eventPtrs[sceneIndex].playerHit1),
@@ -521,16 +521,14 @@ export const compileScene = (
     // Dependencies
     ([] as string[]).concat(
       scene.background.symbolName,
-      sceneCollisionsSymbol(scene.symbolName),
+      sceneCollisionsSymbol(scene.symbol),
       paletteSymbol(bgPalette),
       paletteSymbol(actorsPalette),
       scene.playerSprite.symbolName,
-      scene.actors.length ? sceneActorsSymbol(scene.symbolName) : [],
-      scene.triggers.length > 0 ? sceneTriggersSymbol(scene.symbolName) : [],
-      scene.sprites.length > 0 ? sceneSpritesSymbol(scene.symbolName) : [],
-      scene.projectiles.length > 0
-        ? sceneProjectilesSymbol(scene.symbolName)
-        : [],
+      scene.actors.length ? sceneActorsSymbol(scene.symbol) : [],
+      scene.triggers.length > 0 ? sceneTriggersSymbol(scene.symbol) : [],
+      scene.sprites.length > 0 ? sceneSpritesSymbol(scene.symbol) : [],
+      scene.projectiles.length > 0 ? sceneProjectilesSymbol(scene.symbol) : [],
       maybeScriptDependency(eventPtrs[sceneIndex].start),
       maybeScriptDependency(eventPtrs[sceneIndex].playerHit1)
     )
@@ -543,7 +541,7 @@ export const compileSceneHeader = (
 ) =>
   toDataHeader(
     SCENE_TYPE,
-    scene.symbolName,
+    scene.symbol,
     `// Scene: ${sceneName(scene, sceneIndex)}`
   );
 
@@ -585,7 +583,7 @@ export const compileSceneActors = (
 
   return toStructArrayDataFile(
     ACTOR_TYPE,
-    sceneActorsSymbol(scene.symbolName),
+    sceneActorsSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Actors`,
     filterNull(
       scene.actors.map((actor, actorIndex) => {
@@ -633,7 +631,7 @@ export const compileSceneActorsHeader = (
 ) =>
   toArrayDataHeader(
     ACTOR_TYPE,
-    sceneActorsSymbol(scene.symbolName),
+    sceneActorsSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Actors`
   );
 
@@ -644,7 +642,7 @@ export const compileSceneTriggers = (
 ) =>
   toStructArrayDataFile(
     TRIGGER_TYPE,
-    sceneTriggersSymbol(scene.symbolName),
+    sceneTriggersSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Triggers`,
     scene.triggers.map((trigger, triggerIndex) => ({
       __comment: triggerName(trigger, triggerIndex),
@@ -671,7 +669,7 @@ export const compileSceneTriggersHeader = (
 ) =>
   toArrayDataHeader(
     TRIGGER_TYPE,
-    sceneTriggersSymbol(scene.symbolName),
+    sceneTriggersSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Triggers`
   );
 
@@ -681,7 +679,7 @@ export const compileSceneSprites = (
 ) =>
   toArrayDataFile(
     FARPTR_TYPE,
-    sceneSpritesSymbol(scene.symbolName),
+    sceneSpritesSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Sprites`,
     scene.sprites.map((sprite) => toFarPtr(sprite.symbolName)),
     1,
@@ -694,7 +692,7 @@ export const compileSceneSpritesHeader = (
 ) =>
   toArrayDataHeader(
     FARPTR_TYPE,
-    sceneSpritesSymbol(scene.symbolName),
+    sceneSpritesSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Sprites`
   );
 
@@ -705,7 +703,7 @@ export const compileSceneProjectiles = (
 ) =>
   toStructArrayDataFile(
     PROJECTILE_TYPE,
-    sceneProjectilesSymbol(scene.symbolName),
+    sceneProjectilesSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Projectiles`,
     filterNull(
       scene.projectiles.map((projectile, projectileIndex) => {
@@ -742,7 +740,7 @@ export const compileSceneProjectilesHeader = (
 ) =>
   toArrayDataHeader(
     FARPTR_TYPE,
-    sceneProjectilesSymbol(scene.symbolName),
+    sceneProjectilesSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Projectiles`
   );
 
@@ -753,7 +751,7 @@ export const compileSceneCollisions = (
 ) =>
   toArrayDataFile(
     DATA_TYPE,
-    sceneCollisionsSymbol(scene.symbolName),
+    sceneCollisionsSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Collisions`,
     collisions.map(toHex),
     scene.width
@@ -765,7 +763,7 @@ export const compileSceneCollisionsHeader = (
 ) =>
   toArrayDataHeader(
     DATA_TYPE,
-    sceneCollisionsSymbol(scene.symbolName),
+    sceneCollisionsSymbol(scene.symbol),
     `// Scene: ${sceneName(scene, sceneIndex)}\n// Collisions`
   );
 

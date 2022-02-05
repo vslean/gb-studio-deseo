@@ -53,7 +53,7 @@ _start_scene_y::
 _start_scene_dir:: 
         .db .${dirEnum(startDirection)}
 _start_scene::
-        IMPORT_FAR_PTR_DATA _${startScene.symbolName}
+        IMPORT_FAR_PTR_DATA _${startScene.symbol}
 _start_player_move_speed:: 
         .db ${Math.round(startMoveSpeed * 16)}
 _start_player_anim_tick:: 

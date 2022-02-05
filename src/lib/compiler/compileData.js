@@ -1634,29 +1634,29 @@ VM_ACTOR_SET_SPRITESHEET_BY_REF .ARG2, .ARG1`,
     const bgPalette = precompiled.scenePaletteIndexes[scene.id] || 0;
     const actorsPalette = precompiled.sceneActorPaletteIndexes[scene.id] || 0;
 
-    output[`${scene.symbolName}.c`] = compileScene(scene, sceneIndex, {
+    output[`${scene.symbol}.c`] = compileScene(scene, sceneIndex, {
       bgPalette,
       actorsPalette,
       color: isColor,
       eventPtrs,
     });
-    output[`${scene.symbolName}.h`] = compileSceneHeader(scene, sceneIndex);
-    output[`${scene.symbolName}_collisions.c`] = compileSceneCollisions(
+    output[`${scene.symbol}.h`] = compileSceneHeader(scene, sceneIndex);
+    output[`${scene.symbol}_collisions.c`] = compileSceneCollisions(
       scene,
       sceneIndex,
       collisions
     );
-    output[`${scene.symbolName}_collisions.h`] = compileSceneCollisionsHeader(
+    output[`${scene.symbol}_collisions.h`] = compileSceneCollisionsHeader(
       scene,
       sceneIndex
     );
 
     if (scene.actors.length > 0) {
-      output[`${scene.symbolName}_actors.h`] = compileSceneActorsHeader(
+      output[`${scene.symbol}_actors.h`] = compileSceneActorsHeader(
         scene,
         sceneIndex
       );
-      output[`${scene.symbolName}_actors.c`] = compileSceneActors(
+      output[`${scene.symbol}_actors.c`] = compileSceneActors(
         scene,
         sceneIndex,
         precompiled.usedSprites,
@@ -1664,30 +1664,32 @@ VM_ACTOR_SET_SPRITESHEET_BY_REF .ARG2, .ARG1`,
       );
     }
     if (scene.triggers.length > 0) {
-      output[`${scene.symbolName}_triggers.h`] = compileSceneTriggersHeader(
+      output[`${scene.symbol}_triggers.h`] = compileSceneTriggersHeader(
         scene,
         sceneIndex
       );
-      output[`${scene.symbolName}_triggers.c`] = compileSceneTriggers(
+      output[`${scene.symbol}_triggers.c`] = compileSceneTriggers(
         scene,
         sceneIndex,
         { eventPtrs }
       );
     }
     if (scene.sprites.length > 0) {
-      output[`${scene.symbolName}_sprites.h`] = compileSceneSpritesHeader(
+      output[`${scene.symbol}_sprites.h`] = compileSceneSpritesHeader(
         scene,
         sceneIndex
       );
-      output[`${scene.symbolName}_sprites.c`] = compileSceneSprites(
+      output[`${scene.symbol}_sprites.c`] = compileSceneSprites(
         scene,
         sceneIndex
       );
     }
     if (scene.projectiles.length > 0) {
-      output[`${scene.symbolName}_projectiles.h`] =
-        compileSceneProjectilesHeader(scene, sceneIndex);
-      output[`${scene.symbolName}_projectiles.c`] = compileSceneProjectiles(
+      output[`${scene.symbol}_projectiles.h`] = compileSceneProjectilesHeader(
+        scene,
+        sceneIndex
+      );
+      output[`${scene.symbol}_projectiles.c`] = compileSceneProjectiles(
         scene,
         sceneIndex,
         precompiled.usedSprites
