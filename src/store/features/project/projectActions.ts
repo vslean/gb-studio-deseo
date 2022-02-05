@@ -223,6 +223,7 @@ const loadSprite = createAsyncThunk<{ data: SpriteSheet }, string>(
       const oldAutoName = existingAsset.filename.replace(/.png/i, "");
 
       const preferExisting = pick(existingAsset, [
+        "symbol",
         "states",
         "canvasWidth",
         "canvasHeight",
