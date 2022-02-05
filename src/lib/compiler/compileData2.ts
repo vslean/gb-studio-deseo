@@ -14,7 +14,7 @@ import { dirEnum } from "./helpers";
 
 export interface PrecompiledBackground {
   id: string;
-  symbolName: string;
+  symbol: string;
   name: string;
   width: number;
   height: number;
@@ -486,7 +486,7 @@ export const compileScene = (
       width: scene.width,
       height: scene.height,
       type: `SCENE_TYPE_${scene.type}`,
-      background: toFarPtr(scene.background.symbolName),
+      background: toFarPtr(scene.background.symbol),
       collisions: toFarPtr(sceneCollisionsSymbol(scene.symbol)),
       parallax_rows: compileParallax(
         scene.width > SCREEN_WIDTH ? scene.parallax : undefined
@@ -520,7 +520,7 @@ export const compileScene = (
     },
     // Dependencies
     ([] as string[]).concat(
-      scene.background.symbolName,
+      scene.background.symbol,
       sceneCollisionsSymbol(scene.symbol),
       paletteSymbol(bgPalette),
       paletteSymbol(actorsPalette),
@@ -887,7 +887,7 @@ export const compileBackground = (
 ) =>
   toStructDataFile(
     BACKGROUND_TYPE,
-    background.symbolName,
+    background.symbol,
     `// Background: ${background.name}`,
     {
       width: background.width,
@@ -909,7 +909,7 @@ export const compileBackground = (
 export const compileBackgroundHeader = (background: PrecompiledBackground) =>
   toDataHeader(
     BACKGROUND_TYPE,
-    background.symbolName,
+    background.symbol,
     `// Background: ${background.name}`
   );
 

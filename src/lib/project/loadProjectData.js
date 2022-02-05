@@ -57,6 +57,10 @@ const loadProject = async (projectPath) => {
           ...background,
           id: oldBackground.id,
           _v: oldBackground._v,
+          symbol:
+            oldBackground?.symbol !== undefined
+              ? oldBackground.symbol
+              : background.symbol,
           tileColors:
             oldBackground?.tileColors !== undefined
               ? oldBackground.tileColors

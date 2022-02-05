@@ -26,7 +26,10 @@ import { loadFontData } from "lib/project/loadFontData";
 import { SettingsState } from "../settings/settingsState";
 import { MetadataState } from "../metadata/metadataState";
 import parseAssetPath from "lib/helpers/path/parseAssetPath";
-import { denormalizeEntities } from "../entities/entitiesHelpers";
+import {
+  denormalizeEntities,
+  genEntitySymbol,
+} from "../entities/entitiesHelpers";
 import { matchAsset } from "../entities/entitiesHelpers";
 import { loadAvatarData } from "lib/project/loadAvatarData";
 import { loadEmoteData } from "lib/project/loadEmoteData";
@@ -153,6 +156,12 @@ const loadBackground = createAsyncThunk<{ data: Background }, string>(
       throw new Error("Unable to load background");
     }
 
+    // Make sure symbol is unique
+    const newSymbol = genEntitySymbol(
+      state.project.present.entities,
+      data.symbol
+    );
+
     const backgrounds = state.project.present.entities.backgrounds.ids.map(
       (id) => state.project.present.entities.backgrounds.entities[id]
     ) as Background[];
@@ -169,12 +178,16 @@ const loadBackground = createAsyncThunk<{ data: Background }, string>(
           ...existingAsset,
           ...data,
           id: existingId,
+          symbol: existingAsset ? existingAsset.symbol : newSymbol,
         },
       };
     }
 
     return {
-      data,
+      data: {
+        ...data,
+        symbol: newSymbol,
+      },
     };
   }
 );

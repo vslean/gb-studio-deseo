@@ -61,9 +61,12 @@ import {
   isUnionVariableValue,
   isUnionPropertyValue,
   walkNormalisedScriptEvents,
+  genEntitySymbol,
+  ensureSymbolsUnique,
 } from "./entitiesHelpers";
 import { clone } from "lib/helpers/clone";
 import spriteActions from "../sprite/spriteActions";
+import { genSymbol } from "lib/helpers/symbols";
 
 const MIN_SCENE_X = 60;
 const MIN_SCENE_Y = 30;
@@ -126,25 +129,6 @@ export const initialState: EntitiesState = {
   emotes: emotesAdapter.getInitialState(),
   variables: variablesAdapter.getInitialState(),
   engineFieldValues: engineFieldValuesAdapter.getInitialState(),
-};
-
-const generateSymbolName = (state: EntitiesState, name: string) => {
-  const symbols = [
-    ...(Object.values(state.scenes.entities).map(
-      (scene) => scene?.symbol
-    ) as string[]),
-  ];
-
-  const initialName = String(name)
-    .toLowerCase()
-    .replace(/[^a-z0-9_]/g, "_");
-
-  let symbolName = initialName;
-  let count = 0;
-  while (symbols.includes(symbolName)) {
-    symbolName = `${initialName.replace(/_[0-9]+/, "")}_${count++}`;
-  }
-  return symbolName;
 };
 
 const moveSelectedEntity =
@@ -253,6 +237,7 @@ const loadProject: CaseReducer<
     entities.engineFieldValues || {}
   );
   fixAllScenesWithModifiedBackgrounds(state);
+  ensureSymbolsUnique(state);
 };
 
 const loadBackground: CaseReducer<
@@ -608,7 +593,7 @@ const addScene: CaseReducer<
 
   const newScene: Scene = {
     name: `Scene ${scenesTotal + 1}`,
-    symbol: generateSymbolName(state, "scene_0"),
+    symbol: genEntitySymbol(state, "scene_0"),
     backgroundId,
     width: Math.max(MIN_SCENE_WIDTH, background?.width || 0),
     height: Math.max(MIN_SCENE_HEIGHT, background?.height || 0),
@@ -782,7 +767,7 @@ const addActor: CaseReducer<
 
   const newActor: Actor = {
     name: "",
-    symbol: generateSymbolName(state, "actor_0"),
+    symbol: genEntitySymbol(state, "actor_0"),
     frame: 0,
     animate: false,
     spriteSheetId,
@@ -972,7 +957,7 @@ const addTrigger: CaseReducer<
 
   const newTrigger: Trigger = {
     name: "",
-    symbol: generateSymbolName(state, "trigger_0"),
+    symbol: genEntitySymbol(state, "trigger_0"),
     ...(action.payload.defaults || {}),
     id: action.payload.triggerId,
     x: clamp(action.payload.x, 0, scene.width - width),
@@ -1949,7 +1934,7 @@ const renameVariable: CaseReducer<
       id: action.payload.variableId,
       name: action.payload.name,
       // @todo Will this overwrite previous name?
-      symbol: generateSymbolName(state, "variable_0"),
+      symbol: genEntitySymbol(state, "variable_0"),
     });
   } else {
     variablesAdapter.removeOne(state.variables, action.payload.variableId);
@@ -2007,7 +1992,7 @@ const addCustomEvent: CaseReducer<
   const newCustomEvent: CustomEvent = {
     id: action.payload.customEventId,
     name: "",
-    symbol: generateSymbolName(state, "script_0"),
+    symbol: genEntitySymbol(state, "script_0"),
     description: "",
     variables: {},
     actors: {},

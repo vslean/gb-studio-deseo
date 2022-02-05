@@ -4,12 +4,12 @@
  * @returns valid C symbol
  */
 export const toValidSymbol = (inputSymbol: string) => {
-  const symbol = String(inputSymbol)
+  const symbol = String(inputSymbol || "symbol")
     .toLowerCase()
     // Strip anything but alphanumeric
     .replace(/[^a-z0-9_]/g, "_")
     // Squash repeating underscores
-    .replace(/[_]+/, "_")
+    .replace(/[_]+/g, "_")
     // Limit to 27 chars to leave room for _NNN postfix while keeping within C's 31 unique char limit
     .substring(0, 27);
   if (symbol.match(/^\d/)) {

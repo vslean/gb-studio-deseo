@@ -232,8 +232,6 @@ export const precompileBackgrounds = async (
   });
 
   const usedBackgroundsWithData = usedBackgrounds.map((background) => {
-    const symbolName = genSymbol(`bg_${background.name}`);
-
     // Determine tilemap
     const tilemapData = backgroundData.tilemaps[background.id];
     const tilemapKey = JSON.stringify(tilemapData);
@@ -241,7 +239,7 @@ export const precompileBackgrounds = async (
     if (usedTilemapsCache[tilemapKey] === undefined) {
       // New tilemap
       tilemap = {
-        symbolName: genSymbol(`bg_${background.name}_tilemap`),
+        symbolName: genSymbol(`${background.symbol}_tilemap`),
         data: tilemapData,
       };
       usedTilemaps.push(tilemap);
@@ -262,7 +260,7 @@ export const precompileBackgrounds = async (
     if (usedTilemapAttrsCache[tilemapAttrKey] === undefined) {
       // New tilemap attr
       tilemapAttr = {
-        symbolName: genSymbol(`bg_${background.name}_tilemap_attr`),
+        symbolName: genSymbol(`${background.symbol}_tilemap_attr`),
         data: tilemapAttrData,
       };
       usedTilemapAttrs.push(tilemapAttr);
@@ -275,11 +273,10 @@ export const precompileBackgrounds = async (
     const tilesetIndex =
       usedTilesetLookup[backgroundData.tilemapsTileset[background.id]];
     const tileset = usedTilesets[tilesetIndex];
-    tileset.symbolName = genSymbol(`tileset_${background.name}`);
+    tileset.symbolName = genSymbol(`${background.symbol}_tileset`);
 
     return {
       ...background,
-      symbolName,
       tileset,
       tilemap,
       tilemapAttr,
@@ -1567,10 +1564,10 @@ VM_ACTOR_SET_SPRITESHEET_BY_REF .ARG2, .ARG1`,
 
   // Add background map data
   precompiled.usedBackgrounds.forEach((background) => {
-    output[`${background.symbolName}.c`] = compileBackground(background, {
+    output[`${background.symbol}.c`] = compileBackground(background, {
       color: customColorsEnabled,
     });
-    output[`${background.symbolName}.h`] = compileBackgroundHeader(background);
+    output[`${background.symbol}.h`] = compileBackgroundHeader(background);
   });
 
   precompiled.usedTilemaps.forEach((tilemap) => {

@@ -35,8 +35,9 @@ import {
   TriggerScriptKey,
   triggerScriptKeys,
 } from "./entitiesTypes";
-import { Dictionary, EntityId } from "@reduxjs/toolkit";
+import { Dictionary, EntityId, EntityState } from "@reduxjs/toolkit";
 import l10n from "lib/helpers/l10n";
+import { genSymbol, toValidSymbol } from "lib/helpers/symbols";
 
 export interface NormalisedEntities {
   scenes: Record<EntityId, Scene>;
@@ -532,4 +533,61 @@ export const customEventName = (
   customEventIndex: number
 ) => {
   return customEvent.name || `${l10n("CUSTOM_EVENT")} ${customEventIndex + 1}`;
+};
+
+export const extractEntitySymbols = (
+  entities: EntityState<{ symbol: string }>
+) => {
+  return Object.values(entities.entities).map(
+    (entity) => entity?.symbol
+  ) as string[];
+};
+
+const extractEntityStateSymbols = (state: EntitiesState) => {
+  return [
+    ...extractEntitySymbols(state.scenes),
+    ...extractEntitySymbols(state.actors),
+    ...extractEntitySymbols(state.triggers),
+    ...extractEntitySymbols(state.backgrounds),
+    ...extractEntitySymbols(state.spriteSheets),
+    ...extractEntitySymbols(state.emotes),
+    ...extractEntitySymbols(state.fonts),
+    ...extractEntitySymbols(state.variables),
+    ...extractEntitySymbols(state.customEvents),
+    ...extractEntitySymbols(state.music),
+  ];
+};
+
+export const genEntitySymbol = (state: EntitiesState, name: string) => {
+  return genSymbol(name, extractEntityStateSymbols(state));
+};
+
+const ensureEntitySymbolsUnique = (
+  entities: EntityState<{ symbol: string }>,
+  seenSymbols: string[]
+) => {
+  for (const entity of Object.values(entities.entities)) {
+    if (entity) {
+      entity.symbol = toValidSymbol(entity.symbol);
+      if (seenSymbols.includes(entity.symbol)) {
+        const newSymbol = genSymbol(entity.symbol, seenSymbols);
+        entity.symbol = newSymbol;
+      }
+      seenSymbols.push(entity.symbol);
+    }
+  }
+};
+
+export const ensureSymbolsUnique = (state: EntitiesState) => {
+  const symbols: string[] = [];
+  ensureEntitySymbolsUnique(state.scenes, symbols);
+  ensureEntitySymbolsUnique(state.actors, symbols);
+  ensureEntitySymbolsUnique(state.triggers, symbols);
+  ensureEntitySymbolsUnique(state.backgrounds, symbols);
+  ensureEntitySymbolsUnique(state.spriteSheets, symbols);
+  ensureEntitySymbolsUnique(state.emotes, symbols);
+  ensureEntitySymbolsUnique(state.fonts, symbols);
+  ensureEntitySymbolsUnique(state.variables, symbols);
+  ensureEntitySymbolsUnique(state.customEvents, symbols);
+  ensureEntitySymbolsUnique(state.music, symbols);
 };
