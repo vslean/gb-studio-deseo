@@ -66,7 +66,6 @@ import {
 } from "./entitiesHelpers";
 import { clone } from "lib/helpers/clone";
 import spriteActions from "../sprite/spriteActions";
-import { genSymbol } from "lib/helpers/symbols";
 
 const MIN_SCENE_X = 60;
 const MIN_SCENE_Y = 30;
@@ -593,7 +592,6 @@ const addScene: CaseReducer<
 
   const newScene: Scene = {
     name: `Scene ${scenesTotal + 1}`,
-    symbol: genEntitySymbol(state, "scene_0"),
     backgroundId,
     width: Math.max(MIN_SCENE_WIDTH, background?.width || 0),
     height: Math.max(MIN_SCENE_HEIGHT, background?.height || 0),
@@ -604,6 +602,7 @@ const addScene: CaseReducer<
     autoFadeSpeed: 1,
     ...(action.payload.defaults || {}),
     id: action.payload.sceneId,
+    symbol: genEntitySymbol(state, "scene_0"),
     x: Math.max(MIN_SCENE_X, action.payload.x),
     y: Math.max(MIN_SCENE_Y, action.payload.y),
     actors: [],
@@ -767,7 +766,6 @@ const addActor: CaseReducer<
 
   const newActor: Actor = {
     name: "",
-    symbol: genEntitySymbol(state, "actor_0"),
     frame: 0,
     animate: false,
     spriteSheetId,
@@ -778,6 +776,7 @@ const addActor: CaseReducer<
     isPinned: false,
     collisionGroup: "",
     ...(action.payload.defaults || {}),
+    symbol: genEntitySymbol(state, "actor_0"),
     script: [],
     startScript: [],
     updateScript: [],
@@ -957,11 +956,11 @@ const addTrigger: CaseReducer<
 
   const newTrigger: Trigger = {
     name: "",
-    symbol: genEntitySymbol(state, "trigger_0"),
     ...(action.payload.defaults || {}),
     id: action.payload.triggerId,
     x: clamp(action.payload.x, 0, scene.width - width),
     y: clamp(action.payload.y, 0, scene.height - height),
+    symbol: genEntitySymbol(state, "trigger_0"),
     width,
     height,
     script: [],
@@ -1992,11 +1991,11 @@ const addCustomEvent: CaseReducer<
   const newCustomEvent: CustomEvent = {
     id: action.payload.customEventId,
     name: "",
-    symbol: genEntitySymbol(state, "script_0"),
     description: "",
     variables: {},
     actors: {},
     ...(action.payload.defaults || {}),
+    symbol: genEntitySymbol(state, "script_0"),
     script: [],
   };
   customEventsAdapter.addOne(state.customEvents, newCustomEvent);
