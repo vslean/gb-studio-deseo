@@ -1,4 +1,4 @@
-import { createAsyncThunk, createAction, Dictionary } from "@reduxjs/toolkit";
+import { createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import {
   Background,
   SpriteSheet,
@@ -14,7 +14,6 @@ import {
   FontData,
   AvatarData,
   EmoteData,
-  Asset,
 } from "../entities/entitiesTypes";
 import type { RootState } from "store/configureStore";
 import loadProjectData from "lib/project/loadProjectData";
@@ -27,15 +26,9 @@ import { loadFontData } from "lib/project/loadFontData";
 import { SettingsState } from "../settings/settingsState";
 import { MetadataState } from "../metadata/metadataState";
 import parseAssetPath from "lib/helpers/path/parseAssetPath";
-import {
-  denormalizeEntities,
-  mergeEntityAsset,
-  storeRemovedAssetInInodeCache,
-} from "../entities/entitiesHelpers";
-import { matchAsset } from "../entities/entitiesHelpers";
+import { denormalizeEntities } from "../entities/entitiesHelpers";
 import { loadAvatarData } from "lib/project/loadAvatarData";
 import { loadEmoteData } from "lib/project/loadEmoteData";
-import pick from "lodash/pick";
 
 let saving = false;
 
@@ -118,9 +111,6 @@ export const trimDenormalisedProject = (data: ProjectData): ProjectData => {
   };
 };
 
-const inodeToRecentBackground: Dictionary<Background> = {};
-const inodeToRecentMusicTrack: Dictionary<Music> = {};
-
 const openProject = createAction<string>("project/openProject");
 const closeProject = createAction<void>("project/closeProject");
 
@@ -158,14 +148,8 @@ const loadBackground = createAsyncThunk<{ data: Background }, string>(
       throw new Error("Unable to load background");
     }
 
-    const mergedData: Background = mergeEntityAsset(
-      state.project.present.entities.backgrounds,
-      data,
-      ["id", "symbol"]
-    );
-
     return {
-      data: mergedData,
+      data,
     };
   }
 );
@@ -176,13 +160,11 @@ const removeBackground = createAsyncThunk<
 >("project/removeBackground", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const asset: Asset = storeRemovedAssetInInodeCache(
-    filename,
-    projectRoot,
-    "backgrounds",
-    state.project.present.entities.backgrounds
-  );
-  return asset;
+  const { file, plugin } = parseAssetPath(filename, projectRoot, "backgrounds");
+  return {
+    filename: file,
+    plugin,
+  };
 });
 
 /**************************************************************************
@@ -203,26 +185,8 @@ const loadSprite = createAsyncThunk<{ data: SpriteSheet }, string>(
       throw new Error("Unable to load sprite sheet");
     }
 
-    const mergedData: SpriteSheet = mergeEntityAsset(
-      state.project.present.entities.spriteSheets,
-      data,
-      [
-        "id",
-        "symbol",
-        "states",
-        "canvasWidth",
-        "canvasHeight",
-        "boundsX",
-        "boundsY",
-        "boundsWidth",
-        "boundsHeight",
-        "animSpeed",
-        "numTiles",
-      ]
-    );
-
     return {
-      data: mergedData,
+      data,
     };
   }
 );
@@ -233,13 +197,11 @@ const removeSprite = createAsyncThunk<
 >("project/removeSprite", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const asset: Asset = storeRemovedAssetInInodeCache(
-    filename,
-    projectRoot,
-    "sprites",
-    state.project.present.entities.spriteSheets
-  );
-  return asset;
+  const { file, plugin } = parseAssetPath(filename, projectRoot, "sprites");
+  return {
+    filename: file,
+    plugin,
+  };
 });
 
 /**************************************************************************
@@ -260,14 +222,8 @@ const loadMusic = createAsyncThunk<{ data: Music }, string>(
       throw new Error("Unable to load music");
     }
 
-    const mergedData: Music = mergeEntityAsset(
-      state.project.present.entities.music,
-      data,
-      ["id", "symbol", "settings"]
-    );
-
     return {
-      data: mergedData,
+      data,
     };
   }
 );
@@ -278,13 +234,11 @@ const removeMusic = createAsyncThunk<
 >("project/removeMusic", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
   const projectRoot = state.document && state.document.root;
-  const asset: Asset = storeRemovedAssetInInodeCache(
-    filename,
-    projectRoot,
-    "music",
-    state.project.present.entities.music
-  );
-  return asset;
+  const { file, plugin } = parseAssetPath(filename, projectRoot, "music");
+  return {
+    filename: file,
+    plugin,
+  };
 });
 
 /**************************************************************************
@@ -312,7 +266,7 @@ const loadFont = createAsyncThunk<{ data: Font }, string>(
 );
 
 const removeFont = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeFont", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
@@ -349,7 +303,7 @@ const loadAvatar = createAsyncThunk<{ data: Avatar }, string>(
 );
 
 const removeAvatar = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeAvatar", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;
@@ -386,7 +340,7 @@ const loadEmote = createAsyncThunk<{ data: Emote }, string>(
 );
 
 const removeEmote = createAsyncThunk<
-  { filename: string; plugin: string | undefined },
+  { filename: string; plugin?: string },
   string
 >("project/removeEmote", async (filename, thunkApi) => {
   const state = thunkApi.getState() as RootState;

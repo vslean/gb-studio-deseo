@@ -718,15 +718,13 @@ export const precompileMusic = (
       ) {
         return track;
       }
-      if (driverMusic[0]) {
-        return {
-          ...driverMusic[0],
-          id: track.id,
-        };
-      }
+      return {
+        ...driverMusic[0],
+        id: track.id,
+      };
     })
     .filter((track) => track)
-    .map((track, index) => {
+    .map((track) => {
       const symbolName = genSymbol(`track_${track.name}_`);
       return {
         ...track,

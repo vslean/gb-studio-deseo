@@ -35,3 +35,5 @@ export const genSymbol = (inputSymbol: string, existingSymbols: string[]) => {
   }
   return symbol;
 };
+
+export const tilesetSymbol = (symbol: string) => `${symbol}_tileset`;

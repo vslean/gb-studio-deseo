@@ -1,6 +1,7 @@
 import { normalize, denormalize, schema, NormalizedSchema } from "normalizr";
 import isEqual from "lodash/isEqual";
 import pick from "lodash/pick";
+import cloneDeep from "lodash/cloneDeep";
 import {
   ProjectEntitiesData,
   EntitiesState,
@@ -36,7 +37,12 @@ import {
   TriggerScriptKey,
   triggerScriptKeys,
 } from "./entitiesTypes";
-import { Dictionary, EntityId, EntityState } from "@reduxjs/toolkit";
+import {
+  Dictionary,
+  EntityAdapter,
+  EntityId,
+  EntityState,
+} from "@reduxjs/toolkit";
 import l10n from "lib/helpers/l10n";
 import { genSymbol, toValidSymbol } from "lib/helpers/symbols";
 import parseAssetPath from "lib/helpers/path/parseAssetPath";
@@ -596,7 +602,7 @@ export const ensureSymbolsUnique = (state: EntitiesState) => {
   ensureEntitySymbolsUnique(state.music, symbols);
 };
 
-export const mergeEntityAsset = <T extends Asset & { inode: string }>(
+export const mergeAssetEntity = <T extends Asset & { inode: string }>(
   entities: EntityState<T>,
   entity: T,
   keepProps: (keyof T)[]
@@ -651,4 +657,45 @@ export const storeRemovedAssetInInodeCache = <
   }
 
   return asset;
+};
+
+/**
+ * Upsert entity, preferring some props from existing entity where available
+ * @param entities entity state
+ * @param adapter entity adapter
+ * @param entity entity to upsert
+ * @param keepProps array of props to keep
+ */
+export const upsertAssetEntity = <
+  T extends Asset & { id: string; inode: string }
+>(
+  entities: EntityState<T>,
+  adapter: EntityAdapter<T>,
+  entity: T,
+  keepProps: (keyof T)[]
+) => {
+  adapter.upsertOne(entities, mergeAssetEntity(entities, entity, keepProps));
+};
+
+/**
+ * Search entities for matching asset and remove
+ * @param entities entity state
+ * @param adapter entity adapter
+ * @param asset asset to remove
+ */
+export const removeAssetEntity = <
+  T extends Asset & { id: string; inode: string }
+>(
+  entities: EntityState<T>,
+  adapter: EntityAdapter<T>,
+  asset: Asset
+) => {
+  const existingEntities = entities.ids.map(
+    (id) => entities.entities[id]
+  ) as T[];
+  const existingAsset = existingEntities.find(matchAsset(asset));
+  if (existingAsset) {
+    inodeToAssetCache[existingAsset.inode] = cloneDeep(existingAsset);
+    adapter.removeOne(entities, existingAsset.id);
+  }
 };
