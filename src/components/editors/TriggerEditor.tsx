@@ -15,7 +15,12 @@ import editorActions from "store/features/editor/editorActions";
 import clipboardActions from "store/features/clipboard/clipboardActions";
 import entitiesActions from "store/features/entities/entitiesActions";
 import { SidebarColumn, Sidebar } from "ui/sidebars/Sidebar";
-import { FormContainer, FormHeader, FormRow } from "ui/form/FormLayout";
+import {
+  FormContainer,
+  FormDivider,
+  FormHeader,
+  FormRow,
+} from "ui/form/FormLayout";
 import { EditableText } from "ui/form/EditableText";
 import { RootState } from "store/configureStore";
 import { Trigger, ScriptEvent } from "store/features/entities/entitiesTypes";
@@ -25,6 +30,7 @@ import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
 import { LockIcon, LockOpenIcon } from "ui/icons/Icons";
 import { ClipboardTypeTriggers } from "store/features/clipboard/clipboardTypes";
+import { TriggerSymbolsEditor } from "components/forms/symbols/TriggerSymbolsEditor";
 
 interface TriggerEditorProps {
   id: string;
@@ -231,6 +237,9 @@ export const TriggerEditor = ({
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
+
+            <TriggerSymbolsEditor id={trigger.id} />
+            <FormDivider />
           </FormContainer>
 
           {showNotes && (

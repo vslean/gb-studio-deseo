@@ -949,6 +949,19 @@ const editTrigger: CaseReducer<
   });
 };
 
+const setTriggerSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ triggerId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.triggers,
+    triggersAdapter,
+    action.payload.triggerId,
+    action.payload.symbol
+  );
+};
+
 const moveTrigger: CaseReducer<
   EntitiesState,
   PayloadAction<{
@@ -2594,6 +2607,7 @@ const entitiesSlice = createSlice({
     },
 
     editTrigger,
+    setTriggerSymbol,
     removeTrigger,
     removeTriggerAt,
     moveTrigger,
