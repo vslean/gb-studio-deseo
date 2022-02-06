@@ -1927,8 +1927,7 @@ const renameVariable: CaseReducer<
     variablesAdapter.upsertOne(state.variables, {
       id: action.payload.variableId,
       name: action.payload.name,
-      // @todo Will this overwrite previous name?
-      symbol: genEntitySymbol(state, "variable_0"),
+      symbol: genEntitySymbol(state, `var_${action.payload.name}`),
     });
   } else {
     variablesAdapter.removeOne(state.variables, action.payload.variableId);

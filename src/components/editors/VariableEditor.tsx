@@ -14,7 +14,7 @@ import {
 } from "store/features/entities/entitiesState";
 import { DropdownButton } from "ui/buttons/DropdownButton";
 import { EditableText } from "ui/form/EditableText";
-import { FormContainer, FormHeader } from "ui/form/FormLayout";
+import { FormContainer, FormDivider, FormHeader } from "ui/form/FormLayout";
 import { MenuItem } from "ui/menu/Menu";
 import entitiesActions from "store/features/entities/entitiesActions";
 import editorActions from "store/features/editor/editorActions";
@@ -40,6 +40,7 @@ import {
   walkNormalisedSceneSpecificEvents,
   walkNormalisedTriggerEvents,
 } from "store/features/entities/entitiesHelpers";
+import { VariableSymbolsEditor } from "components/forms/symbols/VariableSymbolsEditor";
 
 interface VariableEditorProps {
   id: string;
@@ -103,7 +104,7 @@ const onVariableEventContainingId =
 
 const UsesWrapper = styled.div`
   position: absolute;
-  top: 38px;
+  top: 105px;
   left: 0;
   bottom: 0;
   right: 0;
@@ -304,6 +305,9 @@ export const VariableEditor: FC<VariableEditorProps> = ({ id }) => {
               </MenuItem>
             </DropdownButton>
           </FormHeader>
+
+          <VariableSymbolsEditor id={variable?.id ?? ""} />
+          <FormDivider />
         </FormContainer>
         <UsesWrapper ref={ref as RefObject<HTMLDivElement>}>
           <SplitPaneHeader collapsed={false}>
@@ -312,7 +316,7 @@ export const VariableEditor: FC<VariableEditorProps> = ({ id }) => {
           {variableUses.length > 0 ? (
             <FlatList
               items={variableUses}
-              height={height - 30}
+              height={height - 97}
               setSelectedId={setSelectedId}
               children={({ item }) =>
                 item.type === "scene" ? (
