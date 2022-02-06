@@ -306,7 +306,7 @@ export const VariableEditor: FC<VariableEditorProps> = ({ id }) => {
             </DropdownButton>
           </FormHeader>
 
-          <VariableSymbolsEditor id={variable?.id ?? ""} />
+          <VariableSymbolsEditor id={id} />
           <FormDivider />
         </FormContainer>
         <UsesWrapper ref={ref as RefObject<HTMLDivElement>}>

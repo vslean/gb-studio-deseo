@@ -2947,7 +2947,7 @@ class ScriptBuilder {
     const scriptRef = this._compileSubScript(
       "custom",
       script,
-      customEvent.name,
+      customEvent.symbol,
       { argLookup }
     );
 
@@ -3100,6 +3100,11 @@ class ScriptBuilder {
 
     const id = getVariableId(variable, entity);
 
+    const namedVariable = variablesLookup[id || "0"];
+    if (namedVariable && namedVariable.symbol) {
+      return namedVariable.symbol.toUpperCase();
+    }
+
     // If already got an alias use that
     const existingAlias = variableAliasLookup[id || "0"];
     if (existingAlias) {
@@ -3122,7 +3127,7 @@ class ScriptBuilder {
       name = tempVariableName(num);
     } else {
       const num = toVariableNumber(variable || "0");
-      name = globalVariableName(num, variablesLookup);
+      name = num;
     }
 
     const alias = "VAR_" + toASMVar(name);
@@ -4237,11 +4242,11 @@ class ScriptBuilder {
   _compileSubScript = (
     type: "input" | "timer" | "music" | "custom",
     script: ScriptEvent[],
-    name?: string,
+    inputSymbol?: string,
     options?: Partial<ScriptBuilderOptions>
   ) => {
     const symbol = this._getAvailableSymbol(
-      name ? `script_${toCSymbol(name)}` : `script_${type}_0`
+      inputSymbol ? inputSymbol : `script_${type}_0`
     );
     const compiledSubScript = compileEntityEvents(symbol, script, {
       ...this.options,

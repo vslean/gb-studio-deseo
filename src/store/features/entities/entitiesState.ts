@@ -2022,6 +2022,19 @@ const editCustomEvent: CaseReducer<
   });
 };
 
+const setCustomEventSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ customEventId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.customEvents,
+    customEventsAdapter,
+    action.payload.customEventId,
+    action.payload.symbol
+  );
+};
+
 const removeCustomEvent: CaseReducer<
   EntitiesState,
   PayloadAction<{ customEventId: string }>
@@ -2771,6 +2784,7 @@ const entitiesSlice = createSlice({
     },
 
     editCustomEvent,
+    setCustomEventSymbol,
     removeCustomEvent,
     refreshCustomEventArgs: {
       reducer: refreshCustomEventArgs,

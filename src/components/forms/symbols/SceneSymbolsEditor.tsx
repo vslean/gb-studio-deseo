@@ -55,7 +55,7 @@ export const SceneSymbolsEditor = ({ id }: SceneSymbolsEditorProps) => {
   return (
     <>
       <FormRow>
-        <FormField name="symbol" label={l10n("FIELD_GBVM_SYMBOL")}>
+        <FormField name="symbol" label={l10n("FIELD_GBVM_SCENE_SYMBOL")}>
           <FlexRow>
             <Input
               value={symbol}

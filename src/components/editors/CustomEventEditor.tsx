@@ -13,13 +13,14 @@ import { customEventSelectors } from "store/features/entities/entitiesState";
 import editorActions from "store/features/editor/editorActions";
 import entitiesActions from "store/features/entities/entitiesActions";
 import { Sidebar, SidebarColumn } from "ui/sidebars/Sidebar";
-import { FormContainer, FormHeader } from "ui/form/FormLayout";
+import { FormContainer, FormDivider, FormHeader } from "ui/form/FormLayout";
 import { EditableText } from "ui/form/EditableText";
 import { RootState } from "store/configureStore";
 import { CustomEvent } from "store/features/entities/entitiesTypes";
 import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
 import { LockIcon, LockOpenIcon } from "ui/icons/Icons";
+import { CustomEventSymbolsEditor } from "components/forms/symbols/CustomEventSymbolsEditor";
 
 const customEventName = (customEvent: CustomEvent, customEventIndex: number) =>
   customEvent.name ? customEvent.name : `Script ${customEventIndex + 1}`;
@@ -183,6 +184,10 @@ const CustomEventEditor = ({ id, multiColumn }: CustomEventEditorProps) => {
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
+
+            <CustomEventSymbolsEditor id={customEvent.id} />
+            <FormDivider />
+
             <FormField style={{}}>
               <label htmlFor="customEventDescription">
                 {l10n("FIELD_DESCRIPTION")}

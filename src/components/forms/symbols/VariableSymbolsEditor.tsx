@@ -17,7 +17,8 @@ export const VariableSymbolsEditor = ({ id }: VariableSymbolsEditorProps) => {
     variableSelectors.selectById(state, id)
   );
 
-  const symbol = (variable?.symbol ?? "").toUpperCase();
+  const symbol =
+    variable && variable.symbol ? variable.symbol.toUpperCase() : `VAR_${id}`;
 
   return (
     <>
