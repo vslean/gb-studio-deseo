@@ -699,3 +699,25 @@ export const removeAssetEntity = <
     adapter.removeOne(entities, existingAsset.id);
   }
 };
+
+export const updateEntitySymbol = <T extends { id: string; symbol: string }>(
+  state: EntitiesState,
+  entities: EntityState<T>,
+  adapter: EntityAdapter<T>,
+  id: string,
+  inputSymbol: string
+) => {
+  const entity = entities.entities[id];
+  if (!entity || entity.symbol === inputSymbol) {
+    // Entity not found or symbol unchanged
+    return;
+  }
+  const symbol = genEntitySymbol(state, inputSymbol);
+  const changes = {
+    symbol,
+  } as Partial<T>;
+  adapter.updateOne(entities, {
+    id,
+    changes,
+  });
+};

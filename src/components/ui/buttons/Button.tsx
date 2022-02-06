@@ -73,6 +73,13 @@ const normalStyles = css`
   :active {
     background: ${(props) => props.theme.colors.button.activeBackground};
   }
+
+  svg {
+    height: 17px;
+    width: 17px;
+    max-width: 17px;
+    max-height: 17px;
+  }
 `;
 
 const primaryStyles = css`

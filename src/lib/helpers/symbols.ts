@@ -37,3 +37,8 @@ export const genSymbol = (inputSymbol: string, existingSymbols: string[]) => {
 };
 
 export const tilesetSymbol = (symbol: string) => `${symbol}_tileset`;
+export const tilemapSymbol = (symbol: string) => `${symbol}_tilemap`;
+export const tilemapAttrSymbol = (symbol: string) => `${symbol}_tilemap_attr`;
+export const initScriptSymbol = (symbol: string) => `${symbol}_init`;
+export const interactScriptSymbol = (symbol: string) => `${symbol}_interact`;
+export const updateScriptSymbol = (symbol: string) => `${symbol}_update`;

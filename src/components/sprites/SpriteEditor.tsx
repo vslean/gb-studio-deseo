@@ -52,6 +52,7 @@ import { AnimationTypeSelect } from "../forms/AnimationTypeSelect";
 import { ObjPaletteSelect } from "../forms/ObjPaletteSelect";
 import { PaletteIndexSelect } from "../forms/PaletteIndexSelect";
 import AnimationStateSelect from "components/forms/AnimationStateSelect";
+import { SpriteSymbolsEditor } from "components/forms/symbols/SpriteSymbolsEditor";
 
 interface SpriteEditorProps {
   id: string;
@@ -535,6 +536,9 @@ export const SpriteEditor = ({
 
           {!metaspriteTile && (
             <>
+              <SpriteSymbolsEditor id={sprite.id} />
+              <FormDivider />
+
               <FormRow>
                 <Label>{l10n("FIELD_CANVAS_SIZE")}</Label>
               </FormRow>

@@ -2171,7 +2171,7 @@ class ScriptBuilder {
     const emote = emotes.find((e) => e.id === emoteId);
     if (emote) {
       this._addComment("Actor Emote");
-      this._actorEmote(this._localRef(actorRef), emote.symbolName);
+      this._actorEmote(this._localRef(actorRef), emote.symbol);
       this._addNL();
     }
   };
@@ -2182,7 +2182,7 @@ class ScriptBuilder {
     const sprite = sprites.find((s) => s.id === spriteSheetId);
     if (sprite) {
       this._addComment("Actor Set Spritesheet");
-      this._actorSetSpritesheet(this._localRef(actorRef), sprite.symbolName);
+      this._actorSetSpritesheet(this._localRef(actorRef), sprite.symbol);
       this._addNL();
     }
   };
@@ -2194,9 +2194,9 @@ class ScriptBuilder {
     if (sprite) {
       this._addComment("Player Set Spritesheet");
       this._setConst(this._localRef(actorRef), 0);
-      this._actorSetSpritesheet(this._localRef(actorRef), sprite.symbolName);
+      this._actorSetSpritesheet(this._localRef(actorRef), sprite.symbol);
       if (persist) {
-        const symbol = sprite.symbolName;
+        const symbol = sprite.symbol;
         this._setConst(`PLAYER_SPRITE_${scene.type}_BANK`, `___bank_${symbol}`);
         this._setConst(`PLAYER_SPRITE_${scene.type}_DATA`, `_${symbol}`);
       }

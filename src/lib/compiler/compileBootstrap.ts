@@ -59,9 +59,7 @@ _start_player_move_speed::
 _start_player_anim_tick:: 
         .db ${startAnimSpeed}
 _ui_fonts:: 
-${fonts
-  .map((font) => `        IMPORT_FAR_PTR_DATA _${font.symbolName}`)
-  .join("\n")}
+${fonts.map((font) => `        IMPORT_FAR_PTR_DATA _${font.symbol}`).join("\n")}
 ${avatarFonts
   .map(
     (_, avatarFontIndex) =>

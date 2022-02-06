@@ -65,6 +65,7 @@ import {
   ensureSymbolsUnique,
   removeAssetEntity,
   upsertAssetEntity,
+  updateEntitySymbol,
 } from "./entitiesHelpers";
 import spriteActions from "../sprite/spriteActions";
 
@@ -654,6 +655,19 @@ const editScene: CaseReducer<
   });
 };
 
+const setSceneSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ sceneId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.scenes,
+    scenesAdapter,
+    action.payload.sceneId,
+    action.payload.symbol
+  );
+};
+
 const removeScene: CaseReducer<
   EntitiesState,
   PayloadAction<{
@@ -746,6 +760,19 @@ const editActor: CaseReducer<
     id: action.payload.actorId,
     changes: patch,
   });
+};
+
+const setActorSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ actorId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.actors,
+    actorsAdapter,
+    action.payload.actorId,
+    action.payload.symbol
+  );
 };
 
 const moveActor: CaseReducer<
@@ -1073,6 +1100,23 @@ const removeTriggerAt: CaseReducer<
 };
 
 /**************************************************************************
+ * Backgrounds
+ */
+
+const setBackgroundSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ backgroundId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.backgrounds,
+    backgroundsAdapter,
+    action.payload.backgroundId,
+    action.payload.symbol
+  );
+};
+
+/**************************************************************************
  * Sprite Sheets
  */
 
@@ -1091,6 +1135,19 @@ const editSpriteSheet: CaseReducer<
     id: action.payload.spriteSheetId,
     changes: patch,
   });
+};
+
+const setSpriteSheetSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ spriteSheetId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.spriteSheets,
+    spriteSheetsAdapter,
+    action.payload.spriteSheetId,
+    action.payload.symbol
+  );
 };
 
 /**************************************************************************
@@ -2479,6 +2536,7 @@ const entitiesSlice = createSlice({
     },
 
     editScene,
+    setSceneSymbol,
     removeScene,
     moveScene,
     paintCollision,
@@ -2507,6 +2565,7 @@ const entitiesSlice = createSlice({
     },
 
     editActor,
+    setActorSymbol,
     removeActor,
     removeActorAt,
     moveActor,
@@ -2542,10 +2601,17 @@ const entitiesSlice = createSlice({
     resizeTrigger,
 
     /**************************************************************************
+     * Backgrounds
+     */
+
+    setBackgroundSymbol,
+
+    /**************************************************************************
      * Sprites
      */
 
     editSpriteSheet,
+    setSpriteSheetSymbol,
 
     /**************************************************************************
      * Metasprites

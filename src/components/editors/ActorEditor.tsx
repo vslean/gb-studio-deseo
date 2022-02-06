@@ -40,6 +40,8 @@ import { NoteField } from "ui/form/NoteField";
 import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
 import { ClipboardTypeActors } from "store/features/clipboard/clipboardTypes";
+import { ActorSymbolsEditor } from "components/forms/symbols/ActorSymbolsEditor";
+import { SpriteSymbolsEditor } from "components/forms/symbols/SpriteSymbolsEditor";
 
 interface ActorEditorProps {
   id: string;
@@ -348,6 +350,11 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
+
+            <ActorSymbolsEditor id={actor.id} />
+            <SpriteSymbolsEditor id={actor.spriteSheetId} />
+
+            <FormDivider />
 
             {showNotes && (
               <FormRow>

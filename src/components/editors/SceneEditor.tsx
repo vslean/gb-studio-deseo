@@ -47,6 +47,8 @@ import {
 } from "store/features/clipboard/clipboardTypes";
 import { SCREEN_WIDTH } from "../../consts";
 import { ScriptEventAutoFadeDisabledWarning } from "components/script/ScriptEventAutoFade";
+import { SceneSymbolsEditor } from "components/forms/symbols/SceneSymbolsEditor";
+import { BackgroundSymbolsEditor } from "components/forms/symbols/BackgroundSymbolsEditor";
 
 interface SceneEditorProps {
   id: string;
@@ -466,6 +468,10 @@ export const SceneEditor = ({ id, multiColumn }: SceneEditorProps) => {
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
+
+            <SceneSymbolsEditor id={scene.id} />
+            <BackgroundSymbolsEditor id={scene.backgroundId} />
+            <FormDivider />
 
             {showNotes && (
               <FormRow>
