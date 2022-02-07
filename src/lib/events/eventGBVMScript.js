@@ -7,6 +7,7 @@ const fields = [
   {
     key: "script",
     type: "textarea",
+    flexBasis: "100%",
   },
   {
     key: "references",

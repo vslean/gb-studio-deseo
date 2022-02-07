@@ -318,6 +318,7 @@ const ReferenceGroup = ({ header, extraReferences }: ReferenceGroupProps) => {
 const RenameWrapper = styled.div`
   position: relative;
   width: 100%;
+  margin: -3px 0;
 `;
 
 const RenameInput = styled(Input)`
@@ -430,6 +431,7 @@ export const AssetReference = <
               onChange={onRenameChange}
               onKeyDown={onRenameKeyDown}
               onFocus={onRenameFocus}
+              onBlur={onRenameFinish}
               autoFocus
             />
             <RenameCompleteButton
@@ -516,6 +518,10 @@ export const VariableReference = ({ id, onCopy, onRemove }: ReferenceProps) => {
     setRenameVisible(false);
   }, [customSymbol, dispatch, id]);
 
+  const onRenameFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.select();
+  }, []);
+
   return (
     <ReferenceGroup
       header={
@@ -525,6 +531,9 @@ export const VariableReference = ({ id, onCopy, onRemove }: ReferenceProps) => {
               value={customSymbol}
               onChange={onRenameChange}
               onKeyDown={onRenameKeyDown}
+              onFocus={onRenameFocus}
+              onBlur={onRenameFinish}
+              autoFocus
             />
             <RenameCompleteButton
               onClick={onRenameFinish}

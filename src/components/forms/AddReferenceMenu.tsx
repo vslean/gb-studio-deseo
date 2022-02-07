@@ -246,9 +246,6 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const [allOptions, setAllOptions] = useState<(EventOptGroup | EventOption)[]>(
     []
   );
-  const favoriteEvents = useSelector(
-    (state: RootState) => state.project.present.settings.favoriteEvents
-  );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(-1);
   const [renderCategoryIndex, setRenderedCategoryIndex] = useState(-1);
@@ -452,8 +449,7 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const menuHeight =
     MENU_HEADER_HEIGHT +
     allOptions.length * MENU_ITEM_HEIGHT +
-    MENU_GROUP_HEIGHT +
-    (favoriteEvents.length > 0 ? MENU_GROUP_HEIGHT + MENU_GROUP_SPACER : 0);
+    MENU_GROUP_HEIGHT;
 
   if (allOptions.length === 0) {
     return null;
