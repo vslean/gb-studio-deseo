@@ -10,12 +10,14 @@ import { RootState } from "store/configureStore";
 import { useDebounce } from "ui/hooks/use-debounce";
 import {
   backgroundSelectors,
+  customEventSelectors,
   musicSelectors,
   spriteSheetSelectors,
   variableSelectors,
 } from "store/features/entities/entitiesState";
 import {
   Background,
+  CustomEvent,
   Music,
   SpriteSheet,
   Variable,
@@ -79,6 +81,14 @@ const musicToOption = (music: Music): EventOption => {
     label: music.name,
     value: music.id,
     referenceType: "music",
+  };
+};
+
+const customEventToOption = (customEvent: CustomEvent): EventOption => {
+  return {
+    label: customEvent.name,
+    value: customEvent.id,
+    referenceType: "script",
   };
 };
 
@@ -259,6 +269,9 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const sprites = useSelector((state: RootState) =>
     spriteSheetSelectors.selectAll(state)
   );
+  const customEvents = useSelector((state: RootState) =>
+    customEventSelectors.selectAll(state)
+  );
   const variables = useSelector((state: RootState) =>
     variableSelectors.selectAll(state)
   );
@@ -287,6 +300,12 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
               (musicDriver !== "huge" && track.type !== "uge")
           )
           .map(musicToOption)
+          .sort(sortAlphabeticallyByLabel),
+      },
+      {
+        label: l10n("FIELD_SCRIPTS"),
+        options: customEvents
+          .map(customEventToOption)
           .sort(sortAlphabeticallyByLabel),
       },
       {

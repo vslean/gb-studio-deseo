@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/configureStore";
 import {
   backgroundSelectors,
+  customEventSelectors,
   musicSelectors,
   spriteSheetSelectors,
   variableSelectors,
@@ -37,6 +38,7 @@ export type ReferenceType =
   | "font"
   | "music"
   | "emote"
+  | "script"
   | "variable";
 
 export interface Reference {
@@ -156,6 +158,7 @@ export const ReferencesSelect = ({
   const spriteRefs = value.filter((ref) => ref.type === "sprite");
   const variableRefs = value.filter((ref) => ref.type === "variable");
   const musicRefs = value.filter((ref) => ref.type === "music");
+  const customEventRefs = value.filter((ref) => ref.type === "script");
 
   return (
     <div>
@@ -214,6 +217,25 @@ export const ReferencesSelect = ({
                 dispatch(
                   entitiesActions.setMusicSymbol({
                     musicId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+            />
+          ))}
+          {customEventRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) =>
+                customEventSelectors.selectById(state, ref.id)
+              }
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setCustomEventSymbol({
+                    customEventId: ref.id,
                     symbol,
                   })
                 );
