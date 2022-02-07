@@ -190,6 +190,11 @@ export const precompileBackgrounds = async (
     (cmd) => {
       if (eventHasArg(cmd, "backgroundId")) {
         eventImageIds.push(cmd.args.backgroundId);
+      } else if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedBackgroundIds = cmd.args.references
+          .filter((ref) => ref.type === "background")
+          .map((ref) => ref.id);
+        eventImageIds.push(...referencedBackgroundIds);
       }
     }
   );

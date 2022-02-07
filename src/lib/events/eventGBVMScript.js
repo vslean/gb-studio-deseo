@@ -1,3 +1,5 @@
+const l10n = require("../helpers/l10n").default;
+
 const id = "EVENT_GBVM_SCRIPT";
 const groups = ["EVENT_GROUP_MISC"];
 
@@ -5,6 +7,11 @@ const fields = [
   {
     key: "script",
     type: "textarea",
+  },
+  {
+    key: "references",
+    type: "references",
+    label: l10n("FIELD_REFERENCES"),
   },
 ];
 

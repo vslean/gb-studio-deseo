@@ -17,6 +17,7 @@ import { OperatorSelect } from "components/forms/OperatorSelect";
 import { OverlayColorSelect } from "components/forms/OverlayColorSelect";
 import { PaletteSelect } from "components/forms/PaletteSelect";
 import { PropertySelect } from "components/forms/PropertySelect";
+import { Reference, ReferencesSelect } from "components/forms/ReferencesSelect";
 import { SceneSelect } from "components/forms/SceneSelect";
 import { SoundEffectSelect } from "components/forms/SoundEffectSelect";
 import { SpriteSheetSelect } from "components/forms/SpriteSheetSelect";
@@ -556,6 +557,15 @@ const ScriptEventFormInput = ({
         <CustomEventSelect
           name={id}
           value={String(value ?? "")}
+          onChange={onChangeField}
+        />
+      </OffscreenSkeletonInput>
+    );
+  } else if (type === "references") {
+    return (
+      <OffscreenSkeletonInput>
+        <ReferencesSelect
+          value={(value as Reference[]) || []}
           onChange={onChangeField}
         />
       </OffscreenSkeletonInput>
