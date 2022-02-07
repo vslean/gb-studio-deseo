@@ -381,6 +381,19 @@ const editMusicSettings: CaseReducer<
   }
 };
 
+const setMusicSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ musicId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.music,
+    musicAdapter,
+    action.payload.musicId,
+    action.payload.symbol
+  );
+};
+
 const removeMusic: CaseReducer<
   EntitiesState,
   PayloadAction<{
@@ -2840,6 +2853,7 @@ const entitiesSlice = createSlice({
      */
 
     editMusicSettings,
+    setMusicSymbol,
 
     /**************************************************************************
      * Engine Field Values
