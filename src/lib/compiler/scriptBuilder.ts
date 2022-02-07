@@ -3102,7 +3102,9 @@ class ScriptBuilder {
 
     const namedVariable = variablesLookup[id || "0"];
     if (namedVariable && namedVariable.symbol) {
-      return namedVariable.symbol.toUpperCase();
+      const symbol = namedVariable.symbol.toUpperCase();
+      variableAliasLookup[id] = symbol;
+      return symbol;
     }
 
     // If already got an alias use that
