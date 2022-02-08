@@ -114,6 +114,8 @@ const ExtraReferences = styled.div`
   padding: 5px 0;
 `;
 
+export const addBankRef = (symbol: string) => `___bank${symbol}, ${symbol}`;
+
 export const ReferencesSelect = ({
   value,
   onChange,
@@ -129,20 +131,6 @@ export const ReferencesSelect = ({
       onChange(value.filter((ref) => ref.id !== id));
     },
     [onChange, value]
-  );
-
-  const onCopy = useCallback(
-    (symbol: string) => {
-      dispatch(clipboardActions.copyText(symbol));
-    },
-    [dispatch]
-  );
-
-  const onCopyWithBank = useCallback(
-    (symbol: string) => {
-      dispatch(clipboardActions.copyText(`___bank${symbol}, ${symbol}`));
-    },
-    [dispatch]
   );
 
   const onOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -197,7 +185,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
               extraSymbols={(symbol) => [
                 tilesetSymbol(symbol),
@@ -222,7 +210,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
             />
           ))}
@@ -242,7 +230,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
             />
           ))}
@@ -263,7 +251,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
             />
           ))}
@@ -283,7 +271,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
               extraSymbols={(symbol) => [initScriptSymbol(symbol)]}
             />
@@ -306,7 +294,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
             />
           ))}
@@ -328,7 +316,7 @@ export const ReferencesSelect = ({
                   })
                 );
               }}
-              onCopy={onCopyWithBank}
+              copyTransform={addBankRef}
               onRemove={onRemove}
               extraSymbols={(symbol) => [tilesetSymbol(symbol)]}
             />
@@ -337,12 +325,7 @@ export const ReferencesSelect = ({
             <ReferenceSection>{l10n("FIELD_VARIABLES")}</ReferenceSection>
           )}
           {variableRefs.map((ref) => (
-            <VariableReference
-              key={ref.id}
-              id={ref.id}
-              onCopy={onCopy}
-              onRemove={onRemove}
-            />
+            <VariableReference key={ref.id} id={ref.id} onRemove={onRemove} />
           ))}
         </ReferenceRows>
       )}
@@ -477,8 +460,7 @@ const RenameCompleteButton = styled.button`
 
 interface ReferenceProps {
   id: string;
-  onCopy: (text: string) => void;
-  onRemove: (id: string) => void;
+  onRemove?: (id: string) => void;
 }
 
 export const AssetReference = <
@@ -487,23 +469,34 @@ export const AssetReference = <
   id,
   selector,
   onRename,
-  onCopy,
+  // onCopy,
   onRemove,
   extraSymbols,
   transform = (symbol: string) => `_${symbol}`,
+  copyTransform = (symbol: string) => `_${symbol}`,
 }: {
   id: string;
   selector: (state: RootState) => T | undefined;
   onRename: (newSymbol: string) => void;
-  onCopy: (text: string) => void;
-  onRemove: (id: string) => void;
+  // onCopy: (text: string) => void;
+  onRemove?: (id: string) => void;
   extraSymbols?: (symbol: string) => string[];
   transform?: (symbol: string) => string;
+  copyTransform?: (symbol: string) => string;
 }) => {
+  const dispatch = useDispatch();
+
   const asset = useSelector(selector);
 
   const [renameVisible, setRenameVisible] = useState(false);
   const [customSymbol, setCustomSymbol] = useState("");
+
+  const onCopy = useCallback(
+    (symbol: string) => {
+      dispatch(clipboardActions.copyText(copyTransform(symbol)));
+    },
+    [copyTransform, dispatch]
+  );
 
   const onStartEdit = useCallback(() => {
     setCustomSymbol(asset?.symbol ?? "");
@@ -574,13 +567,15 @@ export const AssetReference = <
             >
               <PencilIcon />
             </Button>
-            <Button
-              size="small"
-              variant="transparent"
-              onClick={() => onRemove(id)}
-            >
-              <MinusIcon />
-            </Button>
+            {onRemove && (
+              <Button
+                size="small"
+                variant="transparent"
+                onClick={() => onRemove(id)}
+              >
+                <MinusIcon />
+              </Button>
+            )}
           </>
         )
       }
@@ -598,7 +593,7 @@ export const AssetReference = <
   );
 };
 
-export const VariableReference = ({ id, onCopy, onRemove }: ReferenceProps) => {
+export const VariableReference = ({ id, onRemove }: ReferenceProps) => {
   const dispatch = useDispatch();
 
   const variable = useSelector((state: RootState) =>
@@ -609,6 +604,13 @@ export const VariableReference = ({ id, onCopy, onRemove }: ReferenceProps) => {
 
   const [renameVisible, setRenameVisible] = useState(false);
   const [customSymbol, setCustomSymbol] = useState("");
+
+  const onCopy = useCallback(
+    (symbol: string) => {
+      dispatch(clipboardActions.copyText(symbol));
+    },
+    [dispatch]
+  );
 
   const onStartEdit = useCallback(() => {
     setCustomSymbol(variableName);
@@ -675,13 +677,15 @@ export const VariableReference = ({ id, onCopy, onRemove }: ReferenceProps) => {
             >
               <PencilIcon />
             </Button>
-            <Button
-              size="small"
-              variant="transparent"
-              onClick={() => onRemove(id)}
-            >
-              <MinusIcon />
-            </Button>
+            {onRemove && (
+              <Button
+                size="small"
+                variant="transparent"
+                onClick={() => onRemove(id)}
+              >
+                <MinusIcon />
+              </Button>
+            )}
           </>
         )
       }
