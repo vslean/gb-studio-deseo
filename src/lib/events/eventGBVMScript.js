@@ -6,7 +6,7 @@ const groups = ["EVENT_GROUP_MISC"];
 const fields = [
   {
     key: "script",
-    type: "textarea",
+    type: "code",
     flexBasis: "100%",
   },
   {

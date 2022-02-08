@@ -35,6 +35,7 @@ import styled from "styled-components";
 import { Button } from "ui/buttons/Button";
 import { DropdownButton } from "ui/buttons/DropdownButton";
 import { CheckboxField } from "ui/form/CheckboxField";
+import { CodeEditor } from "ui/form/CodeEditor";
 import { Input } from "ui/form/Input";
 import { Select } from "ui/form/Select";
 import { SliderField } from "ui/form/SliderField";
@@ -190,6 +191,12 @@ const ScriptEventFormInput = ({
         maxLength={field.maxLength}
         onChange={onChangeField}
       />
+    );
+  } else if (type === "code") {
+    return (
+      <OffscreenSkeletonInput>
+        <CodeEditor value={String(value || "")} onChange={onChangeField} />
+      </OffscreenSkeletonInput>
     );
   } else if (type === "number") {
     return (
