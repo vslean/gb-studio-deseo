@@ -36,7 +36,7 @@ const Wrapper = styled.div`
   }
 
   & > div {
-    min-height: 100px;
+    min-height: 30px;
   }
 
   code[class*="language-"],
