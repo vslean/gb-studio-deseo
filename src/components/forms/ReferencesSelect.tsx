@@ -10,7 +10,10 @@ import { RootState } from "store/configureStore";
 import {
   backgroundSelectors,
   customEventSelectors,
+  emoteSelectors,
+  fontSelectors,
   musicSelectors,
+  sceneSelectors,
   spriteSheetSelectors,
   variableSelectors,
 } from "store/features/entities/entitiesState";
@@ -20,6 +23,7 @@ import l10n from "lib/helpers/l10n";
 import styled from "styled-components";
 import { FlexGrow } from "ui/spacing/Spacing";
 import {
+  initScriptSymbol,
   tilemapAttrSymbol,
   tilemapSymbol,
   tilesetSymbol,
@@ -39,6 +43,7 @@ export type ReferenceType =
   | "music"
   | "emote"
   | "script"
+  | "scene"
   | "variable";
 
 export interface Reference {
@@ -50,6 +55,13 @@ interface ReferencesSelectProps {
   value: Reference[];
   onChange: (newValue: Reference[]) => void;
 }
+
+const ReferenceSection = styled.div`
+  font-size: 9px;
+  opacity: 0.5;
+  padding-top: 5px;
+  text-transform: uppercase;
+`;
 
 const ReferenceRows = styled.div`
   padding-bottom: 10px;
@@ -159,11 +171,17 @@ export const ReferencesSelect = ({
   const variableRefs = value.filter((ref) => ref.type === "variable");
   const musicRefs = value.filter((ref) => ref.type === "music");
   const customEventRefs = value.filter((ref) => ref.type === "script");
+  const fontRefs = value.filter((ref) => ref.type === "font");
+  const sceneRefs = value.filter((ref) => ref.type === "scene");
+  const emoteRefs = value.filter((ref) => ref.type === "emote");
 
   return (
     <div>
       {value.length > 0 && (
         <ReferenceRows>
+          {backgroundRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_BACKGROUNDS")}</ReferenceSection>
+          )}
           {backgroundRefs.map((ref) => (
             <AssetReference
               key={ref.id}
@@ -188,6 +206,112 @@ export const ReferencesSelect = ({
               ]}
             />
           ))}
+          {emoteRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_EMOTES")}</ReferenceSection>
+          )}
+          {emoteRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) => emoteSelectors.selectById(state, ref.id)}
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setEmoteSymbol({
+                    emoteId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+            />
+          ))}
+          {fontRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_FONTS")}</ReferenceSection>
+          )}
+          {fontRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) => fontSelectors.selectById(state, ref.id)}
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setFontSymbol({
+                    fontId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+            />
+          ))}
+          {musicRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_SONGS")}</ReferenceSection>
+          )}
+          {musicRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) => musicSelectors.selectById(state, ref.id)}
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setMusicSymbol({
+                    musicId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+            />
+          ))}
+          {sceneRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_SCENES")}</ReferenceSection>
+          )}
+          {sceneRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) => sceneSelectors.selectById(state, ref.id)}
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setSceneSymbol({
+                    sceneId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+              extraSymbols={(symbol) => [initScriptSymbol(symbol)]}
+            />
+          ))}
+          {customEventRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_SCRIPTS")}</ReferenceSection>
+          )}
+          {customEventRefs.map((ref) => (
+            <AssetReference
+              key={ref.id}
+              id={ref.id}
+              selector={(state) =>
+                customEventSelectors.selectById(state, ref.id)
+              }
+              onRename={(symbol) => {
+                dispatch(
+                  entitiesActions.setCustomEventSymbol({
+                    customEventId: ref.id,
+                    symbol,
+                  })
+                );
+              }}
+              onCopy={onCopyWithBank}
+              onRemove={onRemove}
+            />
+          ))}
+          {spriteRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_SPRITES")}</ReferenceSection>
+          )}
           {spriteRefs.map((ref) => (
             <AssetReference
               key={ref.id}
@@ -208,42 +332,9 @@ export const ReferencesSelect = ({
               extraSymbols={(symbol) => [tilesetSymbol(symbol)]}
             />
           ))}
-          {musicRefs.map((ref) => (
-            <AssetReference
-              key={ref.id}
-              id={ref.id}
-              selector={(state) => musicSelectors.selectById(state, ref.id)}
-              onRename={(symbol) => {
-                dispatch(
-                  entitiesActions.setMusicSymbol({
-                    musicId: ref.id,
-                    symbol,
-                  })
-                );
-              }}
-              onCopy={onCopyWithBank}
-              onRemove={onRemove}
-            />
-          ))}
-          {customEventRefs.map((ref) => (
-            <AssetReference
-              key={ref.id}
-              id={ref.id}
-              selector={(state) =>
-                customEventSelectors.selectById(state, ref.id)
-              }
-              onRename={(symbol) => {
-                dispatch(
-                  entitiesActions.setCustomEventSymbol({
-                    customEventId: ref.id,
-                    symbol,
-                  })
-                );
-              }}
-              onCopy={onCopyWithBank}
-              onRemove={onRemove}
-            />
-          ))}
+          {variableRefs.length > 0 && (
+            <ReferenceSection>{l10n("FIELD_VARIABLES")}</ReferenceSection>
+          )}
           {variableRefs.map((ref) => (
             <VariableReference
               key={ref.id}

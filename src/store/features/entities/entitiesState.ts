@@ -404,6 +404,23 @@ const removeMusic: CaseReducer<
   removeAssetEntity(state.music, musicAdapter, action.payload);
 };
 
+/**************************************************************************
+ * Font
+ */
+
+const setFontSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ fontId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.fonts,
+    fontsAdapter,
+    action.payload.fontId,
+    action.payload.symbol
+  );
+};
+
 const loadFont: CaseReducer<
   EntitiesState,
   PayloadAction<{
@@ -427,6 +444,10 @@ const removeFont: CaseReducer<
   removeAssetEntity(state.fonts, fontsAdapter, action.payload);
 };
 
+/**************************************************************************
+ * Avatar
+ */
+
 const loadAvatar: CaseReducer<
   EntitiesState,
   PayloadAction<{
@@ -448,6 +469,23 @@ const removeAvatar: CaseReducer<
   }>
 > = (state, action) => {
   removeAssetEntity(state.avatars, avatarsAdapter, action.payload);
+};
+
+/**************************************************************************
+ * Emote
+ */
+
+const setEmoteSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ emoteId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.emotes,
+    emotesAdapter,
+    action.payload.emoteId,
+    action.payload.symbol
+  );
 };
 
 const loadEmote: CaseReducer<
@@ -2854,6 +2892,18 @@ const entitiesSlice = createSlice({
 
     editMusicSettings,
     setMusicSymbol,
+
+    /**************************************************************************
+     * Emote
+     */
+
+    setEmoteSymbol,
+
+    /**************************************************************************
+     * Font
+     */
+
+    setFontSymbol,
 
     /**************************************************************************
      * Engine Field Values

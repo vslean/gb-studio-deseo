@@ -535,7 +535,7 @@ export const actorName = (actor: Actor, actorIndex: number) => {
 };
 
 export const sceneName = (scene: Scene, sceneIndex: number) => {
-  return scene.name || `Scene ${sceneIndex + 1}`;
+  return scene.name || `${l10n("SCENE")} ${sceneIndex + 1}`;
 };
 
 export const customEventName = (

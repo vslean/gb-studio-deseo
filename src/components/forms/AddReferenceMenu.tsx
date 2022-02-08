@@ -11,18 +11,28 @@ import { useDebounce } from "ui/hooks/use-debounce";
 import {
   backgroundSelectors,
   customEventSelectors,
+  emoteSelectors,
+  fontSelectors,
   musicSelectors,
+  sceneSelectors,
   spriteSheetSelectors,
   variableSelectors,
 } from "store/features/entities/entitiesState";
 import {
   Background,
   CustomEvent,
+  Emote,
+  Font,
   Music,
+  Scene,
   SpriteSheet,
   Variable,
 } from "store/features/entities/entitiesTypes";
 import { Reference, ReferenceType } from "./ReferencesSelect";
+import {
+  customEventName,
+  sceneName,
+} from "store/features/entities/entitiesHelpers";
 
 interface AddReferenceMenuProps {
   onBlur?: () => void;
@@ -50,7 +60,6 @@ interface EventOptGroup {
 const MENU_HEADER_HEIGHT = 68;
 const MENU_ITEM_HEIGHT = 25;
 const MENU_GROUP_HEIGHT = 25;
-const MENU_GROUP_SPACER = 10;
 
 const backgroundToOption = (background: Background): EventOption => {
   return {
@@ -65,6 +74,22 @@ const spriteToOption = (sprite: SpriteSheet): EventOption => {
     label: sprite.name,
     value: sprite.id,
     referenceType: "sprite",
+  };
+};
+
+const fontToOption = (font: Font): EventOption => {
+  return {
+    label: font.name,
+    value: font.id,
+    referenceType: "font",
+  };
+};
+
+const sceneToOption = (scene: Scene, index: number): EventOption => {
+  return {
+    label: sceneName(scene, index),
+    value: scene.id,
+    referenceType: "scene",
   };
 };
 
@@ -84,9 +109,20 @@ const musicToOption = (music: Music): EventOption => {
   };
 };
 
-const customEventToOption = (customEvent: CustomEvent): EventOption => {
+const emoteToOption = (emote: Emote): EventOption => {
   return {
-    label: customEvent.name,
+    label: emote.name,
+    value: emote.id,
+    referenceType: "emote",
+  };
+};
+
+const customEventToOption = (
+  customEvent: CustomEvent,
+  index: number
+): EventOption => {
+  return {
+    label: customEventName(customEvent, index),
     value: customEvent.id,
     referenceType: "script",
   };
@@ -275,6 +311,15 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const variables = useSelector((state: RootState) =>
     variableSelectors.selectAll(state)
   );
+  const emotes = useSelector((state: RootState) =>
+    emoteSelectors.selectAll(state)
+  );
+  const fonts = useSelector((state: RootState) =>
+    fontSelectors.selectAll(state)
+  );
+  const scenes = useSelector((state: RootState) =>
+    sceneSelectors.selectAll(state)
+  );
   const tracks = useSelector((state: RootState) =>
     musicSelectors.selectAll(state)
   );
@@ -290,9 +335,17 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
           .map(backgroundToOption)
           .sort(sortAlphabeticallyByLabel),
       },
+      {
+        label: l10n("FIELD_EMOTES"),
+        options: emotes.map(emoteToOption).sort(sortAlphabeticallyByLabel),
+      },
 
       {
-        label: l10n("FIELD_MUSIC"),
+        label: l10n("FIELD_FONTS"),
+        options: fonts.map(fontToOption).sort(sortAlphabeticallyByLabel),
+      },
+      {
+        label: l10n("FIELD_SONGS"),
         options: tracks
           .filter(
             (track) =>
@@ -303,16 +356,19 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
           .sort(sortAlphabeticallyByLabel),
       },
       {
+        label: l10n("FIELD_SCENES"),
+        options: scenes.map(sceneToOption).sort(sortAlphabeticallyByLabel),
+      },
+      {
         label: l10n("FIELD_SCRIPTS"),
         options: customEvents
           .map(customEventToOption)
           .sort(sortAlphabeticallyByLabel),
       },
       {
-        label: l10n("FIELD_SPRITE_SHEETS"),
+        label: l10n("FIELD_SPRITES"),
         options: sprites.map(spriteToOption).sort(sortAlphabeticallyByLabel),
       },
-
       {
         label: l10n("FIELD_VARIABLES"),
         options: variables
