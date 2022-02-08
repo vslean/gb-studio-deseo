@@ -254,6 +254,7 @@ export const ReferencesSelect = ({
               key={ref.id}
               id={ref.id}
               selector={(state) => musicSelectors.selectById(state, ref.id)}
+              transform={(symbol) => `_${symbol}_Data`}
               onRename={(symbol) => {
                 dispatch(
                   entitiesActions.setMusicSymbol({
@@ -489,6 +490,7 @@ export const AssetReference = <
   onCopy,
   onRemove,
   extraSymbols,
+  transform = (symbol: string) => `_${symbol}`,
 }: {
   id: string;
   selector: (state: RootState) => T | undefined;
@@ -496,6 +498,7 @@ export const AssetReference = <
   onCopy: (text: string) => void;
   onRemove: (id: string) => void;
   extraSymbols?: (symbol: string) => string[];
+  transform?: (symbol: string) => string;
 }) => {
   const asset = useSelector(selector);
 
@@ -556,10 +559,10 @@ export const AssetReference = <
           </RenameWrapper>
         ) : (
           <>
-            <ReferenceName onClick={() => onCopy(`_${asset.symbol}`)}>
+            <ReferenceName onClick={() => onCopy(transform(asset.symbol))}>
               <CopyableReferenceSymbol
                 onCopy={onCopy}
-                symbol={`_${asset.symbol}`}
+                symbol={transform(asset.symbol)}
                 name={asset.name}
               />
             </ReferenceName>
