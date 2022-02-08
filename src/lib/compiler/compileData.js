@@ -128,8 +128,22 @@ const ensureProjectAsset = async (relativePath, { projectRoot, warnings }) => {
 
 // #region precompile
 
-export const precompileStrings = (scenes, customEventsLookup) => {
-  const strings = [];
+export const precompileVariables = (
+  variablesLookup,
+  scenes,
+  customEventsLookup
+) => {
+  const usedVariables = [];
+  const usedVariablesLookup = {};
+
+  const addVariable = (id) => {
+    const variable = variablesLookup[id];
+    if (variable && !usedVariablesLookup[id]) {
+      usedVariables.push(variable);
+      usedVariablesLookup[id] = variable;
+    }
+  };
+
   walkDenormalizedScenesEvents(
     scenes,
     {
@@ -139,29 +153,19 @@ export const precompileStrings = (scenes, customEventsLookup) => {
       },
     },
     (cmd) => {
-      if (
-        cmd.args &&
-        (cmd.args.text !== undefined || cmd.command === EVENT_TEXT)
-      ) {
-        const text = cmd.args.text || " "; // Replace empty strings with single space
-        // If never seen this string before add it to the list
-        if (Array.isArray(text)) {
-          for (let i = 0; i < text.length; i++) {
-            const rowText = text[i] || " ";
-            if (strings.indexOf(rowText) === -1) {
-              strings.push(rowText);
-            }
-          }
-        } else if (strings.indexOf(text) === -1) {
-          strings.push(text);
+      if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedIds = cmd.args.references
+          .filter((ref) => ref.type === "variable")
+          .map((ref) => ref.id);
+        for (const id of referencedIds) {
+          addVariable(id);
         }
       }
     }
   );
-  if (strings.length === 0) {
-    return ["NOSTRINGS"];
-  }
-  return strings;
+  return {
+    usedVariables,
+  };
 };
 
 export const precompileBackgrounds = async (
@@ -191,10 +195,10 @@ export const precompileBackgrounds = async (
       if (eventHasArg(cmd, "backgroundId")) {
         eventImageIds.push(cmd.args.backgroundId);
       } else if (eventHasArg(cmd, "references") && cmd.args.references) {
-        const referencedBackgroundIds = cmd.args.references
+        const referencedIds = cmd.args.references
           .filter((ref) => ref.type === "background")
           .map((ref) => ref.id);
-        eventImageIds.push(...referencedBackgroundIds);
+        eventImageIds.push(...referencedIds);
       }
     }
   );
@@ -506,10 +510,18 @@ export const precompileSprites = async (
         maxDepth: MAX_NESTED_SCRIPT_DEPTH,
       },
     },
-    (event) => {
-      if (event.args) {
-        if (event.args.spriteSheetId) {
-          addSprite(event.args.spriteSheetId);
+    (cmd) => {
+      if (cmd.args) {
+        if (cmd.args.spriteSheetId) {
+          addSprite(cmd.args.spriteSheetId);
+        }
+      }
+      if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedIds = cmd.args.references
+          .filter((ref) => ref.type === "sprite")
+          .map((ref) => ref.id);
+        for (const id of referencedIds) {
+          addSprite(id);
         }
       }
     }
@@ -629,6 +641,14 @@ export const precompileEmotes = async (
   const usedEmoteLookup = {};
   const emoteLookup = indexById(emotes);
 
+  const addEmote = (id) => {
+    const emote = emoteLookup[id];
+    if (!usedEmoteLookup[id] && emote) {
+      usedEmotes.push(emote);
+      usedEmoteLookup[id] = emote;
+    }
+  };
+
   walkDenormalizedScenesEvents(
     scenes,
     {
@@ -637,16 +657,16 @@ export const precompileEmotes = async (
         maxDepth: MAX_NESTED_SCRIPT_DEPTH,
       },
     },
-    (event) => {
-      if (event.args) {
-        if (
-          event.args.emoteId &&
-          !usedEmoteLookup[event.args.emoteId] &&
-          emoteLookup[event.args.emoteId]
-        ) {
-          const emote = emoteLookup[event.args.emoteId];
-          usedEmotes.push(emote);
-          usedEmoteLookup[event.args.emoteId] = emote;
+    (cmd) => {
+      if (cmd.args && cmd.args.emoteId) {
+        addEmote(cmd.args.emoteId);
+      }
+      if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedIds = cmd.args.references
+          .filter((ref) => ref.type === "emote")
+          .map((ref) => ref.id);
+        for (const id of referencedIds) {
+          addEmote(id);
         }
       }
     }
@@ -692,6 +712,11 @@ export const precompileMusic = (
         if (usedMusicIds.indexOf(musicId) === -1) {
           usedMusicIds.push(musicId);
         }
+      } else if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedIds = cmd.args.references
+          .filter((ref) => ref.type === "music")
+          .map((ref) => ref.id);
+        usedMusicIds.push(...referencedIds);
       }
     }
   );
@@ -779,6 +804,12 @@ export const precompileFonts = async (
         for (let i = 1; i <= cmd.args.items; i++) {
           addFontsFromString(String(cmd.args[`option${i}`]));
         }
+      }
+      if (eventHasArg(cmd, "references") && cmd.args.references) {
+        const referencedIds = cmd.args.references
+          .filter((ref) => ref.type === "font")
+          .map((ref) => ref.id);
+        usedFontIds.push(...referencedIds);
       }
     }
   );
@@ -992,9 +1023,14 @@ const precompile = async (
   { progress, warnings }
 ) => {
   const customEventsLookup = keyBy(projectData.customEvents, "id");
+  const variablesLookup = keyBy(projectData.variables, "id");
 
-  progress(EVENT_MSG_PRE_STRINGS);
-  const strings = precompileStrings(projectData.scenes, customEventsLookup);
+  progress(EVENT_MSG_PRE_VARIABLES);
+  const { usedVariables } = precompileVariables(
+    variablesLookup,
+    projectData.scenes,
+    customEventsLookup
+  );
 
   progress(EVENT_MSG_PRE_IMAGES);
   const {
@@ -1108,7 +1144,7 @@ const precompile = async (
   progress(EVENT_MSG_PRE_COMPLETE);
 
   return {
-    strings,
+    usedVariables,
     usedBackgrounds,
     backgroundLookup,
     usedTilesets,
@@ -1187,7 +1223,17 @@ const compile = async (
   await new Promise((resolve) => setTimeout(resolve, 20));
 
   const variablesLookup = keyBy(projectData.variables, "id");
-  const variableAliasLookup = {};
+  const variableAliasLookup = precompiled.usedVariables.reduce(
+    (memo, variable) => {
+      // Include variables referenced from GBVM
+      if (variable.symbol) {
+        const symbol = variable.symbol.toUpperCase();
+        memo[variable.id] = symbol;
+      }
+      return memo;
+    },
+    {}
+  );
 
   // Determine which scene types need to support persisting player sprite
   const persistSceneTypes = precompiled.sceneData.reduce((memo, scene) => {
