@@ -87,11 +87,11 @@ const Wrapper = styled.div`
 
   .editor textarea {
     outline: none;
-    padding-left: 40px !important;
+    padding-left: 30px !important;
   }
 
   .editor pre {
-    padding-left: 40px !important;
+    padding-left: 30px !important;
   }
 
   .editor .editorLineNumber {
@@ -100,7 +100,7 @@ const Wrapper = styled.div`
     color: ${(props) => props.theme.colors.token.code};
     opacity: 0.5;
     text-align: right;
-    width: 30px;
+    width: 25px;
     font-weight: 100;
   }
 `;
