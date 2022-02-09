@@ -18,7 +18,9 @@ const fields = [
 
 const compile = (input, helpers) => {
   const { appendRaw } = helpers;
-  appendRaw(input.script);
+  if (input.script) {
+    appendRaw(input.script);
+  }
 };
 
 module.exports = {
