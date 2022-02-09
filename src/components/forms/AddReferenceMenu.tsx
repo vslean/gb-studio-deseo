@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { OptGroup } from "ui/form/Select";
 import l10n from "lib/helpers/l10n";
 import styled, { css } from "styled-components";
@@ -33,6 +39,8 @@ import {
   customEventName,
   sceneName,
 } from "store/features/entities/entitiesHelpers";
+import { FixedSizeList as List } from "react-window";
+import { allVariables, globalVariableDefaultName } from "lib/helpers/variables";
 
 interface AddReferenceMenuProps {
   onBlur?: () => void;
@@ -93,9 +101,14 @@ const sceneToOption = (scene: Scene, index: number): EventOption => {
   };
 };
 
-const variableToOption = (variable: Variable): EventOption => {
+const variableToOption = (variable: {
+  id: string;
+  namedVariable?: Variable;
+}): EventOption => {
   return {
-    label: variable.name,
+    label: variable.namedVariable
+      ? variable.namedVariable.name
+      : globalVariableDefaultName(variable.id),
     value: variable.id,
     referenceType: "variable",
   };
@@ -271,6 +284,11 @@ const MenuItemCaret = styled.div`
   }
 `;
 
+const collator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
+
 const sortAlphabeticallyByLabel = (
   a: { label: string },
   b: { label: string }
@@ -282,7 +300,7 @@ const sortAlphabeticallyByLabel = (
   } else if (b.label === l10n("EVENT_GROUP_MISC")) {
     return -1;
   }
-  return a.label < b.label ? -1 : 1;
+  return collator.compare(a.label, b.label);
 };
 
 const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
@@ -298,6 +316,7 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const rootOptionsRef = useRef<HTMLDivElement>(null);
   const childOptionsRef = useRef<HTMLDivElement>(null);
+  const childOptionsListRef = useRef<List>(null);
 
   const backgrounds = useSelector((state: RootState) =>
     backgroundSelectors.selectAll(state)
@@ -308,8 +327,8 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
   const customEvents = useSelector((state: RootState) =>
     customEventSelectors.selectAll(state)
   );
-  const variables = useSelector((state: RootState) =>
-    variableSelectors.selectAll(state)
+  const variablesLookup = useSelector((state: RootState) =>
+    variableSelectors.selectEntities(state)
   );
   const emotes = useSelector((state: RootState) =>
     emoteSelectors.selectAll(state)
@@ -371,7 +390,11 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
       },
       {
         label: l10n("FIELD_VARIABLES"),
-        options: variables
+        options: allVariables
+          .map((id: string) => ({
+            id,
+            namedVariable: variablesLookup[id],
+          }))
           .map(variableToOption)
           .sort(sortAlphabeticallyByLabel),
       },
@@ -381,7 +404,17 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
       setOptions(allOptions);
       firstLoad.current = true;
     }
-  }, [backgrounds, tracks, variables, musicDriver, sprites]);
+  }, [
+    backgrounds,
+    tracks,
+    variablesLookup,
+    musicDriver,
+    sprites,
+    emotes,
+    fonts,
+    scenes,
+    customEvents,
+  ]);
 
   const updateOptions = useCallback(() => {
     if (searchTerm) {
@@ -521,10 +554,7 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
     []
   );
 
-  const menuHeight =
-    MENU_HEADER_HEIGHT +
-    allOptions.length * MENU_ITEM_HEIGHT +
-    MENU_GROUP_HEIGHT;
+  const menuHeight = MENU_HEADER_HEIGHT + allOptions.length * MENU_ITEM_HEIGHT;
 
   if (allOptions.length === 0) {
     return null;
@@ -532,7 +562,7 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
 
   return (
     <SelectMenu>
-      <Menu style={{ height: menuHeight }}>
+      <Menu style={{ height: menuHeight, minHeight: menuHeight }}>
         <SelectMenuHeader
           isOpen={!searchTerm && selectedCategoryIndex > -1}
           onClick={() => onSelectOption(-1)}
@@ -593,24 +623,62 @@ const AddReferenceMenu = ({ onBlur, onAdd }: AddReferenceMenuProps) => {
           </SelectMenuOptions>
           <SelectMenuOptions ref={childOptionsRef}>
             {renderCategoryIndex > -1 &&
-              (options[renderCategoryIndex] as EventOptGroup)?.options &&
-              (options[renderCategoryIndex] as EventOptGroup).options.map(
-                (childOption, childOptionIndex) => (
-                  <MenuItem
-                    key={childOption.value}
-                    data-index={childOptionIndex}
-                    selected={selectedIndex === childOptionIndex}
-                    onMouseOver={() => setSelectedIndex(childOptionIndex)}
-                    onClick={() => onSelectOption(childOptionIndex)}
-                  >
-                    {childOption.label}
-                  </MenuItem>
-                )
+              (options[renderCategoryIndex] as EventOptGroup)?.options && (
+                <List
+                  ref={childOptionsListRef}
+                  width="100%"
+                  height={allOptions.length * MENU_ITEM_HEIGHT}
+                  itemCount={
+                    (options[renderCategoryIndex] as EventOptGroup)?.options
+                      .length
+                  }
+                  itemSize={MENU_ITEM_HEIGHT}
+                  itemData={{
+                    items: (options[renderCategoryIndex] as EventOptGroup)
+                      ?.options,
+                    selectedIndex,
+                    setSelectedIndex,
+                    onSelectOption,
+                  }}
+                >
+                  {Row}
+                </List>
               )}
           </SelectMenuOptions>
         </SelectMenuOptionsWrapper>
       </Menu>
     </SelectMenu>
+  );
+};
+
+interface VirtualRowProps {
+  readonly index: number;
+  readonly style: CSSProperties;
+  readonly data: {
+    readonly items: EventOption[];
+    readonly selectedIndex: number;
+    readonly setSelectedIndex: (index: number) => void;
+    readonly onSelectOption: (index: number) => void;
+  };
+}
+
+const Row = ({ index, data, style }: VirtualRowProps) => {
+  const item = data.items[index];
+  if (!item) {
+    return <div style={style} />;
+  }
+  return (
+    <div style={style}>
+      <MenuItem
+        key={item.value}
+        data-index={index}
+        selected={data.selectedIndex === index}
+        onMouseOver={() => data.setSelectedIndex(index)}
+        onClick={() => data.onSelectOption(index)}
+      >
+        {item.label}
+      </MenuItem>
+    </div>
   );
 };
 
