@@ -42,6 +42,7 @@ import { Button } from "ui/buttons/Button";
 import { ClipboardTypeActors } from "store/features/clipboard/clipboardTypes";
 import { ActorSymbolsEditor } from "components/forms/symbols/ActorSymbolsEditor";
 import { SpriteSymbolsEditor } from "components/forms/symbols/SpriteSymbolsEditor";
+import { SymbolEditorWrapper } from "components/forms/symbols/SymbolEditorWrapper";
 
 interface ActorEditorProps {
   id: string;
@@ -189,6 +190,8 @@ export const ActorEditor: FC<ActorEditorProps> = ({
       setScriptMode(tabs[0] as keyof ScriptHandlers);
     }
   }, [scriptMode, actor?.collisionGroup]);
+
+  const [showSymbols, setShowSymbols] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -338,6 +341,11 @@ export const ActorEditor: FC<ActorEditorProps> = ({
                     {l10n("FIELD_ADD_NOTES")}
                   </MenuItem>
                 )}
+                {!showSymbols && (
+                  <MenuItem onClick={() => setShowSymbols(true)}>
+                    {l10n("FIELD_VIEW_GBVM_SYMBOLS")}
+                  </MenuItem>
+                )}
                 <MenuItem onClick={onCopy}>{l10n("MENU_COPY_ACTOR")}</MenuItem>
                 {clipboardFormat === ClipboardTypeActors && (
                   <MenuItem onClick={onPaste}>
@@ -351,10 +359,15 @@ export const ActorEditor: FC<ActorEditorProps> = ({
               </DropdownButton>
             </FormHeader>
 
-            <ActorSymbolsEditor id={actor.id} />
-            <SpriteSymbolsEditor id={actor.spriteSheetId} />
-
-            <FormDivider />
+            {showSymbols && (
+              <>
+                <SymbolEditorWrapper>
+                  <ActorSymbolsEditor id={actor.id} />
+                  <SpriteSymbolsEditor id={actor.spriteSheetId} />
+                </SymbolEditorWrapper>
+                <FormDivider />
+              </>
+            )}
 
             {showNotes && (
               <FormRow>

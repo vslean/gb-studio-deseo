@@ -630,11 +630,13 @@ export const VariableReference = ({ id, onRemove }: ReferenceProps) => {
   };
 
   const onRenameFinish = useCallback(() => {
-    dispatch(
-      entitiesActions.renameVariable({ variableId: id, name: customSymbol })
-    );
+    if (customSymbol !== variableName) {
+      dispatch(
+        entitiesActions.renameVariable({ variableId: id, name: customSymbol })
+      );
+    }
     setRenameVisible(false);
-  }, [customSymbol, dispatch, id]);
+  }, [customSymbol, dispatch, id, variableName]);
 
   const onRenameFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.select();

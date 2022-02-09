@@ -31,6 +31,7 @@ import { Button } from "ui/buttons/Button";
 import { LockIcon, LockOpenIcon } from "ui/icons/Icons";
 import { ClipboardTypeTriggers } from "store/features/clipboard/clipboardTypes";
 import { TriggerSymbolsEditor } from "components/forms/symbols/TriggerSymbolsEditor";
+import { SymbolEditorWrapper } from "components/forms/symbols/SymbolEditorWrapper";
 
 interface TriggerEditorProps {
   id: string;
@@ -111,6 +112,8 @@ export const TriggerEditor = ({
   const lockScriptEditor = useSelector(
     (state: RootState) => state.editor.lockScriptEditor
   );
+
+  const [showSymbols, setShowSymbols] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -223,6 +226,11 @@ export const TriggerEditor = ({
                     {l10n("FIELD_ADD_NOTES")}
                   </MenuItem>
                 )}
+                {!showSymbols && (
+                  <MenuItem onClick={() => setShowSymbols(true)}>
+                    {l10n("FIELD_VIEW_GBVM_SYMBOLS")}
+                  </MenuItem>
+                )}
                 <MenuItem onClick={onCopy}>
                   {l10n("MENU_COPY_TRIGGER")}
                 </MenuItem>
@@ -237,10 +245,16 @@ export const TriggerEditor = ({
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
-
-            <TriggerSymbolsEditor id={trigger.id} />
-            <FormDivider />
           </FormContainer>
+
+          {showSymbols && (
+            <>
+              <SymbolEditorWrapper>
+                <TriggerSymbolsEditor id={trigger.id} />
+              </SymbolEditorWrapper>
+              <FormDivider />
+            </>
+          )}
 
           {showNotes && (
             <FormRow>

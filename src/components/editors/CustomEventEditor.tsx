@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ScriptEditor from "../script/ScriptEditor";
 import { FormField } from "../library/Forms";
@@ -21,6 +21,7 @@ import { StickyTabs, TabBar } from "ui/tabs/Tabs";
 import { Button } from "ui/buttons/Button";
 import { LockIcon, LockOpenIcon } from "ui/icons/Icons";
 import { CustomEventSymbolsEditor } from "components/forms/symbols/CustomEventSymbolsEditor";
+import { SymbolEditorWrapper } from "components/forms/symbols/SymbolEditorWrapper";
 
 const customEventName = (customEvent: CustomEvent, customEventIndex: number) =>
   customEvent.name ? customEvent.name : `Script ${customEventIndex + 1}`;
@@ -48,6 +49,8 @@ const CustomEventEditor = ({ id, multiColumn }: CustomEventEditorProps) => {
   const lockScriptEditor = useSelector(
     (state: RootState) => state.editor.lockScriptEditor
   );
+
+  const [showSymbols, setShowSymbols] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -179,14 +182,25 @@ const CustomEventEditor = ({ id, multiColumn }: CustomEventEditorProps) => {
                 variant="transparent"
                 menuDirection="right"
               >
+                {!showSymbols && (
+                  <MenuItem onClick={() => setShowSymbols(true)}>
+                    {l10n("FIELD_VIEW_GBVM_SYMBOLS")}
+                  </MenuItem>
+                )}
                 <MenuItem onClick={onRemove}>
                   {l10n("MENU_DELETE_CUSTOM_EVENT")}
                 </MenuItem>
               </DropdownButton>
             </FormHeader>
 
-            <CustomEventSymbolsEditor id={customEvent.id} />
-            <FormDivider />
+            {showSymbols && (
+              <>
+                <SymbolEditorWrapper>
+                  <CustomEventSymbolsEditor id={customEvent.id} />
+                </SymbolEditorWrapper>
+                <FormDivider />
+              </>
+            )}
 
             <FormField style={{}}>
               <label htmlFor="customEventDescription">
