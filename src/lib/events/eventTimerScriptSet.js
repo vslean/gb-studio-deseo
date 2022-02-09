@@ -5,6 +5,11 @@ const groups = ["EVENT_GROUP_TIMER"];
 
 const fields = [
   {
+    key: "symbol",
+    type: "text",
+    defaultValue: "script_timer_0",
+  },
+  {
     type: "group",
     fields: [
       {
@@ -80,7 +85,7 @@ const compile = (input, helpers) => {
     let duration = typeof input.duration === "number" ? input.duration : 10.0;
     frames = Math.ceil(duration * 60);
   }
-  timerScriptSet(frames, input.script);
+  timerScriptSet(frames, input.script, input.symbol);
 };
 
 module.exports = {

@@ -2766,10 +2766,11 @@ class ScriptBuilder {
   inputScriptSet = (
     input: string,
     override: boolean,
-    script: ScriptEvent[]
+    script: ScriptEvent[],
+    symbol?: string
   ) => {
     this._addComment(`Input Script Attach`);
-    const scriptRef = this._compileSubScript("input", script);
+    const scriptRef = this._compileSubScript("input", script, symbol);
     const inputValue = inputDec(input);
     let ctx = inputValue.toString(2).padStart(8, "0").indexOf("1") + 1;
     if (ctx <= 0) {
@@ -2789,9 +2790,9 @@ class ScriptBuilder {
   // --------------------------------------------------------------------------
   // Timer
 
-  timerScriptSet = (frames = 600, script: ScriptEvent[]) => {
+  timerScriptSet = (frames = 600, script: ScriptEvent[], symbol?: string) => {
     this._addComment(`Timer Start`);
-    const scriptRef = this._compileSubScript("timer", script);
+    const scriptRef = this._compileSubScript("timer", script, symbol);
     const ctx = 1;
     const TIMER_CYCLES = 16;
     let durationTicks = (frames / TIMER_CYCLES + 0.5) | 0;
@@ -3506,9 +3507,13 @@ class ScriptBuilder {
     this._addNL();
   };
 
-  musicRoutineSet = (routine: number, script: ScriptEvent[]) => {
+  musicRoutineSet = (
+    routine: number,
+    script: ScriptEvent[],
+    symbol?: string
+  ) => {
     this._addComment(`Music Routine Attach`);
-    const scriptRef = this._compileSubScript("music", script);
+    const scriptRef = this._compileSubScript("music", script, symbol);
     const routineValue = Number(routine);
     this._musicRoutine(routineValue, scriptRef);
     this._addNL();

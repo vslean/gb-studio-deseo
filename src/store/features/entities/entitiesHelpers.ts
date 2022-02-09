@@ -553,6 +553,14 @@ export const extractEntitySymbols = (
   ) as string[];
 };
 
+export const extractScriptEventSymbols = (
+  entities: EntityState<ScriptEvent>
+) => {
+  return Object.values(entities.entities)
+    .map((entity) => entity?.args?.symbol)
+    .filter((i) => i) as string[];
+};
+
 const extractEntityStateSymbols = (state: EntitiesState) => {
   return [
     ...extractEntitySymbols(state.scenes),
@@ -565,6 +573,7 @@ const extractEntityStateSymbols = (state: EntitiesState) => {
     ...extractEntitySymbols(state.variables),
     ...extractEntitySymbols(state.customEvents),
     ...extractEntitySymbols(state.music),
+    ...extractScriptEventSymbols(state.scriptEvents),
   ];
 };
 
@@ -588,6 +597,23 @@ const ensureEntitySymbolsUnique = (
   }
 };
 
+const ensureScriptEventSymbolsUnique = (
+  entities: EntityState<ScriptEvent>,
+  seenSymbols: string[]
+) => {
+  for (const entity of Object.values(entities.entities)) {
+    if (entity && entity.args?.symbol) {
+      const entitySymbol = entity.args.symbol as string;
+      entity.args.symbol = toValidSymbol(entitySymbol);
+      if (seenSymbols.includes(entity.args.symbol as string)) {
+        const newSymbol = genSymbol(entity.args.symbol as string, seenSymbols);
+        entity.args.symbol = newSymbol;
+      }
+      seenSymbols.push(entity.args.symbol as string);
+    }
+  }
+};
+
 export const ensureSymbolsUnique = (state: EntitiesState) => {
   const symbols: string[] = [];
   ensureEntitySymbolsUnique(state.scenes, symbols);
@@ -600,6 +626,7 @@ export const ensureSymbolsUnique = (state: EntitiesState) => {
   ensureEntitySymbolsUnique(state.variables, symbols);
   ensureEntitySymbolsUnique(state.customEvents, symbols);
   ensureEntitySymbolsUnique(state.music, symbols);
+  ensureScriptEventSymbolsUnique(state.scriptEvents, symbols);
 };
 
 export const mergeAssetEntity = <T extends Asset & { inode: string }>(
