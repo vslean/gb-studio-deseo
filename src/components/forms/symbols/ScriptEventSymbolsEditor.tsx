@@ -1,30 +1,30 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { triggerSelectors } from "store/features/entities/entitiesState";
+import { scriptEventSelectors } from "store/features/entities/entitiesState";
 import entitiesActions from "store/features/entities/entitiesActions";
-import { interactScriptSymbol } from "lib/helpers/symbols";
 import { addBankRef, AssetReference } from "../ReferencesSelect";
 
-interface TriggerSymbolsEditorProps {
+interface ScriptEventSymbolsEditorProps {
   id: string;
 }
 
-export const TriggerSymbolsEditor = ({ id }: TriggerSymbolsEditorProps) => {
+export const ScriptEventSymbolsEditor = ({
+  id,
+}: ScriptEventSymbolsEditorProps) => {
   const dispatch = useDispatch();
   return (
     <AssetReference
       id={id}
-      selector={(state) => triggerSelectors.selectById(state, id)}
+      selector={(state) => scriptEventSelectors.selectById(state, id)}
       onRename={(symbol) => {
         dispatch(
-          entitiesActions.setTriggerSymbol({
-            triggerId: id,
+          entitiesActions.setScriptEventSymbol({
+            scriptEventId: id,
             symbol,
           })
         );
       }}
       copyTransform={addBankRef}
-      extraSymbols={(symbol) => [interactScriptSymbol(symbol)]}
     />
   );
 };

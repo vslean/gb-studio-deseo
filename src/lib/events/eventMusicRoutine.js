@@ -5,11 +5,6 @@ const groups = ["EVENT_GROUP_MUSIC"];
 
 const fields = [
   {
-    key: "symbol",
-    type: "text",
-    defaultValue: "script_music_0",
-  },
-  {
     key: "routine",
     type: "number",
     defaultValue: 0,
@@ -38,8 +33,8 @@ const fields = [
 ];
 
 const compile = (input, helpers) => {
-  const { musicRoutineSet } = helpers;
-  musicRoutineSet(input.routine, input.true, input.symbol);
+  const { musicRoutineSet, event } = helpers;
+  musicRoutineSet(input.routine, input.true, event.symbol);
 };
 
 module.exports = {
@@ -47,4 +42,6 @@ module.exports = {
   groups,
   fields,
   compile,
+  editableSymbol: true,
+  allowChildrenBeforeInitFade: true,
 };

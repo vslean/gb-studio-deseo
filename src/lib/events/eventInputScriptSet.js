@@ -11,11 +11,6 @@ const autoLabel = (fetchArg) => {
 
 const fields = [
   {
-    key: "symbol",
-    type: "text",
-    defaultValue: "script_input_0",
-  },
-  {
     key: "input",
     type: "input",
     defaultValue: ["b"],
@@ -48,12 +43,12 @@ const fields = [
 ];
 
 const compile = (input, helpers) => {
-  const { inputScriptSet } = helpers;
+  const { inputScriptSet, event } = helpers;
   inputScriptSet(
     input.input,
     input.override !== false,
     input.true,
-    input.symbol
+    event.symbol
   );
 };
 
@@ -63,5 +58,6 @@ module.exports = {
   groups,
   fields,
   compile,
+  editableSymbol: true,
   allowChildrenBeforeInitFade: true,
 };

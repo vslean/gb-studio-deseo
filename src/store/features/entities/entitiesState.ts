@@ -2320,6 +2320,7 @@ const addScriptEvents: CaseReducer<
       const newScriptEvent: ScriptEvent = {
         ...scriptEventData,
         id: action.payload.scriptEventIds[scriptEventIndex],
+        symbol: undefined,
       };
       if (scriptEventData.children) {
         newScriptEvent.children = Object.keys(scriptEventData.children).reduce(
@@ -2390,6 +2391,19 @@ const editScriptEvent: CaseReducer<
     id: action.payload.scriptEventId,
     changes: action.payload.changes,
   });
+};
+
+const setScriptEventSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ scriptEventId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.scriptEvents,
+    scriptEventsAdapter,
+    action.payload.scriptEventId,
+    action.payload.symbol
+  );
 };
 
 const toggleScriptEventOpen: CaseReducer<
@@ -2877,6 +2891,7 @@ const entitiesSlice = createSlice({
 
     moveScriptEvent,
     editScriptEvent,
+    setScriptEventSymbol,
     resetScript,
     toggleScriptEventOpen,
     toggleScriptEventComment,

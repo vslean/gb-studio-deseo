@@ -17,9 +17,12 @@ const fields = [
 ];
 
 const compile = (input, helpers) => {
-  const { appendRaw } = helpers;
+  const { appendRaw, compileReferencedAssets } = helpers;
   if (input.script) {
     appendRaw(input.script);
+  }
+  if (input.references) {
+    compileReferencedAssets(input.references);
   }
 };
 

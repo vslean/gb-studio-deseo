@@ -47,6 +47,7 @@ export type ScriptEventParentType =
 export type ScriptEvent = {
   id: string;
   command: string;
+  symbol?: string;
   args?: Record<string, unknown>;
   children?: Dictionary<string[]>;
 };

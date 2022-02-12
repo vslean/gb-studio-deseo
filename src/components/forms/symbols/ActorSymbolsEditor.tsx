@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { actorSelectors } from "store/features/entities/entitiesState";
 import entitiesActions from "store/features/entities/entitiesActions";
 import { interactScriptSymbol, updateScriptSymbol } from "lib/helpers/symbols";
-import { AssetReference } from "../ReferencesSelect";
+import { addBankRef, AssetReference } from "../ReferencesSelect";
 
 interface ActorSymbolsEditorProps {
   id: string;
@@ -23,6 +23,7 @@ export const ActorSymbolsEditor = ({ id }: ActorSymbolsEditorProps) => {
           })
         );
       }}
+      copyTransform={addBankRef}
       extraSymbols={(symbol) => [
         interactScriptSymbol(symbol),
         updateScriptSymbol(symbol),

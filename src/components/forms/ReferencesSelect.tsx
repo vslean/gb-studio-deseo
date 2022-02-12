@@ -464,7 +464,7 @@ interface ReferenceProps {
 }
 
 export const AssetReference = <
-  T extends { id: string; symbol: string; name: string }
+  T extends { id: string; symbol?: string; name?: string }
 >({
   id,
   selector,
@@ -531,7 +531,8 @@ export const AssetReference = <
     return null;
   }
 
-  const extra = extraSymbols?.(asset.symbol) ?? [];
+  const assetSymbol = asset.symbol ?? "";
+  const extra = extraSymbols?.(assetSymbol) ?? [];
 
   return (
     <ReferenceGroup
@@ -555,12 +556,16 @@ export const AssetReference = <
           </RenameWrapper>
         ) : (
           <>
-            <ReferenceName onClick={() => onCopy(transform(asset.symbol))}>
-              <CopyableReferenceSymbol
-                onCopy={onCopy}
-                symbol={transform(asset.symbol)}
-                name={asset.name}
-              />
+            <ReferenceName onClick={() => onCopy(transform(assetSymbol))}>
+              {assetSymbol ? (
+                <CopyableReferenceSymbol
+                  onCopy={onCopy}
+                  symbol={transform(assetSymbol)}
+                  name={asset.name}
+                />
+              ) : (
+                l10n("FIELD_AUTOMATIC")
+              )}
             </ReferenceName>
             <FlexGrow />
             <Button

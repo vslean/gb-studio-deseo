@@ -45,6 +45,7 @@ import {
   isUnionVariableValue,
 } from "store/features/entities/entitiesHelpers";
 import { lexText } from "lib/fonts/lexText";
+import { Reference } from "components/forms/ReferencesSelect";
 
 type ScriptOutput = string[];
 
@@ -2831,7 +2832,60 @@ class ScriptBuilder {
       return;
     }
 
+    const compiledCustomEvent = this.compileCustomEventScript(customEvent.id);
+    if (!compiledCustomEvent) {
+      return;
+    }
+
+    const { scriptRef, argsLen } = compiledCustomEvent;
+
     this._addComment(`Call Script: ${customEvent.name}`);
+
+    // Push args
+    const actorArgs = Object.values(customEvent.actors);
+    const variableArgs = Object.values(customEvent.variables);
+
+    if (actorArgs) {
+      for (const actorArg of actorArgs.reverse()) {
+        if (actorArg) {
+          const actorValue = input?.[`$actor[${actorArg.id}]$`] || "";
+          const actorIndex = this.getActorIndex(actorValue);
+          this._stackPushConst(actorIndex, `Actor ${actorArg.id}`);
+        }
+      }
+    }
+
+    if (variableArgs) {
+      for (const variableArg of variableArgs.reverse()) {
+        if (variableArg) {
+          const variableValue = input?.[`$variable[${variableArg.id}]$`] || "";
+          const variableAlias = this.getVariableAlias(variableValue);
+          this._stackPushConst(variableAlias, `Variable ${variableArg.id}`);
+        }
+      }
+    }
+
+    this._callFar(scriptRef, argsLen);
+    this._addNL();
+  };
+
+  compileReferencedAssets = (references: Reference[]) => {
+    const referencedCustomEventIds = references
+      .filter((r) => r.type === "script")
+      .map((r) => r.id);
+    for (const customEventId of referencedCustomEventIds) {
+      this.compileCustomEventScript(customEventId);
+    }
+  };
+
+  compileCustomEventScript = (customEventId: string) => {
+    const { customEvents } = this.options;
+    const customEvent = customEvents.find((ce) => ce.id === customEventId);
+
+    if (!customEvent) {
+      console.warn("Script not found", customEventId);
+      return;
+    }
 
     const argLookup: {
       actor: Dictionary<string>;
@@ -2872,10 +2926,7 @@ class ScriptBuilder {
     if (actorArgs) {
       for (const actorArg of actorArgs.reverse()) {
         if (actorArg) {
-          const actorValue = input?.[`$actor[${actorArg.id}]$`] || "";
-          const actorIndex = this.getActorIndex(actorValue);
-          const arg = registerArg("actor", actorArg.id);
-          this._stackPushConst(actorIndex, `Actor ${arg}`);
+          registerArg("actor", actorArg.id);
         }
       }
     }
@@ -2883,10 +2934,7 @@ class ScriptBuilder {
     if (variableArgs) {
       for (const variableArg of variableArgs.reverse()) {
         if (variableArg) {
-          const variableValue = input?.[`$variable[${variableArg.id}]$`] || "";
-          const variableAlias = this.getVariableAlias(variableValue);
-          const arg = registerArg("variable", variableArg.id);
-          this._stackPushConst(variableAlias, `Variable ${arg}`);
+          registerArg("variable", variableArg.id);
         }
       }
     }
@@ -2952,8 +3000,7 @@ class ScriptBuilder {
       { argLookup }
     );
 
-    this._callFar(scriptRef, argsLen);
-    this._addNL();
+    return { scriptRef, argsLen };
   };
 
   returnFar = () => {
