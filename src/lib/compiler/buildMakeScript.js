@@ -25,7 +25,7 @@ export default async (
     platform === "win32"
       ? `..\\_gbstools\\gbdk\\bin\\lcc`
       : `../_gbstools/gbdk/bin/lcc`;
-  let CFLAGS = `-Iinclude -Wa-Iinclude -Wa-I../_gbstools/gbdk/lib/small/asxxxx -Wl-a -c`;
+  let CFLAGS = `-Wf"--peep-file ph/gbz80.rul" -Iinclude -Wa-Iinclude -Wa-I../_gbstools/gbdk/lib/small/asxxxx -Wl-a -c`;
 
   if (customColorsEnabled) {
     CFLAGS += " -DCGB";
@@ -128,6 +128,7 @@ export const getBuildCommands = async (
 
     if (!(await pathExists(objFile))) {
       const buildArgs = [
+        `-Wf"--peep-file ph/gbz80.rul"`,
         `-Iinclude`,
         `-Wa-Iinclude`,
         `-Wa-I../_gbstools/gbdk/lib/small/asxxxx`,
