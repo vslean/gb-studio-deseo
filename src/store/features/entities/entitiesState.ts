@@ -592,7 +592,7 @@ const addScene: CaseReducer<
     autoFadeSpeed: 1,
     ...(action.payload.defaults || {}),
     id: action.payload.sceneId,
-    symbol: genEntitySymbol(state, "scene_0"),
+    symbol: genEntitySymbol(state, `scene_${scenesTotal + 1}`),
     x: Math.max(MIN_SCENE_X, action.payload.x),
     y: Math.max(MIN_SCENE_Y, action.payload.y),
     actors: [],
@@ -2046,6 +2046,7 @@ const addCustomEvent: CaseReducer<
   EntitiesState,
   PayloadAction<{ customEventId: string; defaults?: Partial<CustomEvent> }>
 > = (state, action) => {
+  const customEventsTotal = localCustomEventSelectors.selectTotal(state);
   const newCustomEvent: CustomEvent = {
     id: action.payload.customEventId,
     name: "",
@@ -2053,7 +2054,7 @@ const addCustomEvent: CaseReducer<
     variables: {},
     actors: {},
     ...(action.payload.defaults || {}),
-    symbol: genEntitySymbol(state, "script_0"),
+    symbol: genEntitySymbol(state, `script_${customEventsTotal + 1}`),
     script: [],
   };
   customEventsAdapter.addOne(state.customEvents, newCustomEvent);
@@ -3032,6 +3033,9 @@ const localTriggerSelectors = triggersAdapter.getSelectors(
 );
 const localSceneSelectors = scenesAdapter.getSelectors(
   (state: EntitiesState) => state.scenes
+);
+const localCustomEventSelectors = customEventsAdapter.getSelectors(
+  (state: EntitiesState) => state.customEvents
 );
 const localSpriteSheetSelectors = spriteSheetsAdapter.getSelectors(
   (state: EntitiesState) => state.spriteSheets

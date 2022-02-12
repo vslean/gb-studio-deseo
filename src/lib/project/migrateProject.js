@@ -1525,28 +1525,30 @@ const migrateFrom300r1To300r2Events = (data) => {
 export const migrateFrom300r2To300r3 = (data) => {
   return {
     ...data,
-    scenes: data.scenes.map((scene) => {
+    scenes: data.scenes.map((scene, sceneIndex) => {
       return {
         ...scene,
-        symbol: toValidSymbol(`scene_${scene.name ?? 0}`),
+        symbol: toValidSymbol(`scene_${scene.name || sceneIndex + 1}`),
         actors: scene.actors.map((actor) => {
           return {
             ...actor,
-            symbol: toValidSymbol(`actor_${actor.name ?? 0}`),
+            symbol: toValidSymbol(`actor_${actor.name || 0}`),
           };
         }),
         triggers: scene.triggers.map((trigger) => {
           return {
             ...trigger,
-            symbol: toValidSymbol(`trigger_${trigger.name ?? 0}`),
+            symbol: toValidSymbol(`trigger_${trigger.name || 0}`),
           };
         }),
       };
     }),
-    customEvents: data.customEvents.map((customEvent) => {
+    customEvents: data.customEvents.map((customEvent, customEventIndex) => {
       return {
         ...customEvent,
-        symbol: toValidSymbol(`script_${customEvent.name ?? 0}`),
+        symbol: toValidSymbol(
+          `script_${customEvent.name || customEventIndex + 1}`
+        ),
       };
     }),
   };
