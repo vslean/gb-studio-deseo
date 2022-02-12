@@ -516,9 +516,12 @@ export const AssetReference = <
   };
 
   const onRenameFinish = useCallback(() => {
-    onRename(customSymbol);
+    const originalSymbol = asset?.symbol ?? "";
+    if (customSymbol && customSymbol !== originalSymbol) {
+      onRename(customSymbol);
+    }
     setRenameVisible(false);
-  }, [customSymbol, onRename]);
+  }, [asset?.symbol, customSymbol, onRename]);
 
   const onRenameFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.select();
@@ -630,7 +633,7 @@ export const VariableReference = ({ id, onRemove }: ReferenceProps) => {
   };
 
   const onRenameFinish = useCallback(() => {
-    if (customSymbol !== variableName) {
+    if (customSymbol && customSymbol !== variableName) {
       dispatch(
         entitiesActions.renameVariable({ variableId: id, name: customSymbol })
       );
