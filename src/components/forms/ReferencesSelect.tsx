@@ -607,7 +607,7 @@ export const VariableReference = ({ id, onRemove }: ReferenceProps) => {
   const variable = useSelector((state: RootState) =>
     variableSelectors.selectById(state, id)
   );
-  const symbol = variable?.symbol.toUpperCase() ?? `VAR_${id}`;
+  const symbol = variable?.symbol?.toUpperCase() ?? `VAR_${id}`;
   const variableName = variable?.name ?? "";
 
   const [renameVisible, setRenameVisible] = useState(false);
@@ -638,13 +638,13 @@ export const VariableReference = ({ id, onRemove }: ReferenceProps) => {
   };
 
   const onRenameFinish = useCallback(() => {
-    if (customSymbol && customSymbol !== variableName) {
+    if (customSymbol && (!variable?.symbol || customSymbol !== variableName)) {
       dispatch(
         entitiesActions.renameVariable({ variableId: id, name: customSymbol })
       );
     }
     setRenameVisible(false);
-  }, [customSymbol, dispatch, id, variableName]);
+  }, [customSymbol, dispatch, id, variable?.symbol, variableName]);
 
   const onRenameFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.select();
