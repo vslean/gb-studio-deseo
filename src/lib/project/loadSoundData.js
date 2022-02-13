@@ -12,13 +12,15 @@ const loadSoundData = (projectRoot) => async (filename) => {
   const fileStat = await stat(filename, { bigint: true });
   const inode = fileStat.ino.toString();
   const name = file.replace(/(.vgm|.wav)/i, "");
+  const type = file.toLowerCase().endsWith(".wav") ? "wav" : "vgm";
+
   return {
     id: uuidv4(),
     plugin,
-    name,
+    name: `${name}.${type}`,
     symbol: toValidSymbol(`sound_${name}`),
     filename: file,
-    type: file.endsWith(".wav") ? "wav" : "vgm",
+    type,
     inode,
     _v: Date.now(),
   };

@@ -7,7 +7,9 @@ const fields = [
   {
     key: "type",
     type: "soundEffect",
+    label: l10n("FIELD_SOUND_EFFECT"),
     defaultValue: "beep",
+    flexBasis: "100%",
   },
   {
     key: "pitch",
@@ -43,6 +45,12 @@ const fields = [
     key: "duration",
     type: "number",
     label: l10n("FIELD_DURATION"),
+    conditions: [
+      {
+        key: "type",
+        in: ["beep", "crash", "tone"],
+      },
+    ],
     min: 0,
     max: 4.25,
     step: 0.01,
@@ -52,7 +60,14 @@ const fields = [
     key: "wait",
     type: "checkbox",
     label: l10n("FIELD_WAIT_UNTIL_FINISHED"),
+    conditions: [
+      {
+        key: "type",
+        in: ["beep", "crash", "tone"],
+      },
+    ],
     defaultValue: true,
+    flexBasis: "100%",
   },
 ];
 
