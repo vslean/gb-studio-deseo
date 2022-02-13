@@ -52,6 +52,7 @@ import {
   SpriteState,
   ScriptEventsRef,
   ScriptEventParentType,
+  Sound,
 } from "./entitiesTypes";
 import {
   normalizeEntities,
@@ -93,6 +94,9 @@ const customEventsAdapter = createEntityAdapter<CustomEvent>();
 const musicAdapter = createEntityAdapter<Music>({
   sortComparer: sortByFilename,
 });
+const soundsAdapter = createEntityAdapter<Sound>({
+  sortComparer: sortByFilename,
+});
 const fontsAdapter = createEntityAdapter<Font>({
   sortComparer: sortByFilename,
 });
@@ -119,6 +123,7 @@ export const initialState: EntitiesState = {
   palettes: palettesAdapter.getInitialState(),
   customEvents: customEventsAdapter.getInitialState(),
   music: musicAdapter.getInitialState(),
+  sounds: soundsAdapter.getInitialState(),
   fonts: fontsAdapter.getInitialState(),
   avatars: avatarsAdapter.getInitialState(),
   emotes: emotesAdapter.getInitialState(),
@@ -222,6 +227,7 @@ const loadProject: CaseReducer<
   spriteStatesAdapter.setAll(state.spriteStates, entities.spriteStates || {});
   palettesAdapter.setAll(state.palettes, entities.palettes || {});
   musicAdapter.setAll(state.music, entities.music || {});
+  soundsAdapter.setAll(state.sounds, entities.sounds || {});
   fontsAdapter.setAll(state.fonts, entities.fonts || {});
   avatarsAdapter.setAll(state.avatars, entities.avatars || {});
   emotesAdapter.setAll(state.emotes, entities.emotes || {});
@@ -3048,6 +3054,9 @@ const localPaletteSelectors = palettesAdapter.getSelectors(
 );
 const localMusicSelectors = musicAdapter.getSelectors(
   (state: EntitiesState) => state.music
+);
+const localSoundSelectors = soundsAdapter.getSelectors(
+  (state: EntitiesState) => state.sounds
 );
 
 // Global
