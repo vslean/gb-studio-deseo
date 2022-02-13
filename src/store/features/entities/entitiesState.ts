@@ -411,6 +411,46 @@ const removeMusic: CaseReducer<
 };
 
 /**************************************************************************
+ * Sounds
+ */
+
+const loadSound: CaseReducer<
+  EntitiesState,
+  PayloadAction<{
+    data: Sound;
+  }>
+> = (state, action) => {
+  upsertAssetEntity(state.sounds, soundsAdapter, action.payload.data, [
+    "id",
+    "symbol",
+  ]);
+  ensureSymbolsUnique(state);
+};
+
+const setSoundSymbol: CaseReducer<
+  EntitiesState,
+  PayloadAction<{ soundId: string; symbol: string }>
+> = (state, action) => {
+  updateEntitySymbol(
+    state,
+    state.sounds,
+    soundsAdapter,
+    action.payload.soundId,
+    action.payload.symbol
+  );
+};
+
+const removeSound: CaseReducer<
+  EntitiesState,
+  PayloadAction<{
+    filename: string;
+    plugin?: string;
+  }>
+> = (state, action) => {
+  removeAssetEntity(state.sounds, soundsAdapter, action.payload);
+};
+
+/**************************************************************************
  * Font
  */
 
@@ -2916,6 +2956,12 @@ const entitiesSlice = createSlice({
     setMusicSymbol,
 
     /**************************************************************************
+     * Sounds
+     */
+
+    setSoundSymbol,
+
+    /**************************************************************************
      * Emote
      */
 
@@ -2944,6 +2990,8 @@ const entitiesSlice = createSlice({
       .addCase(spriteActions.detectSpriteComplete, loadDetectedSprite)
       .addCase(projectActions.loadMusic.fulfilled, loadMusic)
       .addCase(projectActions.removeMusic.fulfilled, removeMusic)
+      .addCase(projectActions.loadSound.fulfilled, loadSound)
+      .addCase(projectActions.removeSound.fulfilled, removeSound)
       .addCase(projectActions.loadFont.fulfilled, loadFont)
       .addCase(projectActions.removeFont.fulfilled, removeFont)
       .addCase(projectActions.loadAvatar.fulfilled, loadAvatar)

@@ -12,6 +12,7 @@ import {
   CustomEvent,
   Palette,
   ScriptEvent,
+  Sound,
   Variable,
 } from "store/features/entities/entitiesTypes";
 import { Dictionary } from "@reduxjs/toolkit";
@@ -92,6 +93,7 @@ interface ScriptBuilderOptions {
   fonts: PrecompiledFontData[];
   defaultFontId: string;
   music: PrecompiledMusicTrack[];
+  sounds: Sound[];
   avatars: ScriptBuilderEntity[];
   emotes: PrecompiledEmote[];
   palettes: Palette[];
@@ -457,6 +459,7 @@ class ScriptBuilder {
       fonts: options.fonts || [],
       defaultFontId: options.defaultFontId || "",
       music: options.music || [],
+      sounds: options.sounds || [],
       avatars: options.avatars || [],
       emotes: options.emotes || [],
       palettes: options.palettes || [],
@@ -1543,24 +1546,12 @@ class ScriptBuilder {
     );
   };
 
-  _soundPlay = (
-    frames: number,
-    channel: number,
-    a: number,
-    b: number,
-    c: number,
-    d: number,
-    e: number
-  ) => {
+  _soundPlay = (symbol: string) => {
     this._addCmd(
-      "VM_SOUND_PLAY",
-      frames,
-      channel,
-      decHex(a),
-      decHex(b),
-      decHex(c),
-      decHex(d),
-      decHex(e)
+      "VM_SFX_PLAY",
+      `___bank_${symbol}`,
+      `_${symbol}`,
+      `___mute_mask_${symbol}`
     );
   };
 
@@ -3571,42 +3562,52 @@ class ScriptBuilder {
 
   soundStartTone = (period = 1600, toneFrames = 30) => {
     this._addComment("Sound Play Tone");
-    this._soundPlay(
-      toneFrames,
-      1,
-      0x00,
-      (0x0 << 6) | 0x01,
-      (0x0f << 4) | 0x00,
-      period & 0x00ff,
-      0x80 | ((period & 0x0700) >> 8)
-    );
+    // this._soundPlay(
+    //   toneFrames,
+    //   1,
+    //   0x00,
+    //   (0x0 << 6) | 0x01,
+    //   (0x0f << 4) | 0x00,
+    //   period & 0x00ff,
+    //   0x80 | ((period & 0x0700) >> 8)
+    // );
   };
 
   soundPlayBeep = (pitch = 4) => {
     this._addComment("Sound Play Beep");
-    let pitchValue = pitch - 1;
-    if (pitchValue < 0) {
-      pitchValue = 0;
-    }
-    if (pitchValue >= 8) {
-      pitchValue = 7;
-    }
-    pitchValue = pitchValue & 0x07;
+    // let pitchValue = pitch - 1;
+    // if (pitchValue < 0) {
+    //   pitchValue = 0;
+    // }
+    // if (pitchValue >= 8) {
+    //   pitchValue = 7;
+    // }
+    // pitchValue = pitchValue & 0x07;
 
-    this._soundPlay(
-      30,
-      4,
-      0x01,
-      (0x0f << 4) | 0x02,
-      0x20 | 0x08 | pitchValue,
-      0x80 | 0x40,
-      0x00
-    );
+    // this._soundPlay(
+    //   30,
+    //   4,
+    //   0x01,
+    //   (0x0f << 4) | 0x02,
+    //   0x20 | 0x08 | pitchValue,
+    //   0x80 | 0x40,
+    //   0x00
+    // );
   };
 
   soundPlayCrash = () => {
     this._addComment("Sound Play Crash");
-    this._soundPlay(30, 4, 0x01, (0x0f << 4) | 0x02, 0x13, 0x80, 0x00);
+    // this._soundPlay(30, 4, 0x01, (0x0f << 4) | 0x02, 0x13, 0x80, 0x00);
+  };
+
+  soundPlay = (soundId: string) => {
+    this._addComment(`Sound Play`);
+    const { sounds } = this.options;
+    const sound = sounds.find((s) => s.id === soundId);
+    if (sound) {
+      this._soundPlay(`${sound.symbol}`);
+    }
+    this._addNL();
   };
 
   // --------------------------------------------------------------------------

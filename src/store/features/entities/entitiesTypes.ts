@@ -219,6 +219,7 @@ export type Sound = {
   symbol: string;
   filename: string;
   plugin?: string;
+  type: "wav" | "vgm";
   inode: string;
   _v: number;
 };
