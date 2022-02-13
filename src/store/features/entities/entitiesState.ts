@@ -3099,6 +3099,9 @@ export const customEventSelectors = customEventsAdapter.getSelectors(
 export const musicSelectors = musicAdapter.getSelectors(
   (state: RootState) => state.project.present.entities.music
 );
+export const soundSelectors = soundsAdapter.getSelectors(
+  (state: RootState) => state.project.present.entities.sounds
+);
 export const fontSelectors = fontsAdapter.getSelectors(
   (state: RootState) => state.project.present.entities.fonts
 );

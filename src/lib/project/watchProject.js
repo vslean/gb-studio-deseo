@@ -108,7 +108,7 @@ const watchProject = async (
     .on("change", onChangedMusic)
     .on("unlink", onRemoveMusic);
 
-  const sfxWatcher = chokidar
+  const soundsWatcher = chokidar
     .watch(`${soundsRoot}/**/*.{wav,WAV,vgm,VGM}`, {
       ignoreInitial: true,
       persistent: true,
@@ -225,7 +225,7 @@ const watchProject = async (
     uiWatcher.close();
     sgbWatcher.close();
     musicWatcher.close();
-    sfxWatcher.close();
+    soundsWatcher.close();
     fontsWatcher.close();
     avatarsWatcher.close();
     emotesWatcher.close();

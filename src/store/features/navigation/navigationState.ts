@@ -7,7 +7,7 @@ export type NavigationSection =
   | "sprites"
   | "backgrounds"
   | "music"
-  | "sfx"
+  | "sounds"
   | "palettes"
   | "dialogue"
   | "build"

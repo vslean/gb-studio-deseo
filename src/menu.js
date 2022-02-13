@@ -241,7 +241,7 @@ const buildMenu = async (plugins = []) => {
           label: l10n("MENU_SFX"),
           accelerator: "CommandOrControl+5",
           click: () => {
-            notifyListeners("section", "sfx");
+            notifyListeners("section", "sounds");
           },
         },
         {
