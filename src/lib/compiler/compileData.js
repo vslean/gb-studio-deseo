@@ -1706,10 +1706,12 @@ VM_ACTOR_SET_SPRITESHEET_BY_REF .ARG2, .ARG1`,
 
   // Add sound data
   for (const sound of precompiled.usedSounds) {
-    output[`sounds/${sound.symbol}.c`] = await compileSound(sound, {
-      projectRoot,
-    });
-    output[`${sound.symbol}.h`] = await compileSoundHeader(sound);
+    const { src: compiledSoundSrc, header: compiledSoundHeader } =
+      await compileSound(sound, {
+        projectRoot,
+      });
+    output[`sounds/${sound.symbol}.c`] = compiledSoundSrc;
+    output[`${sound.symbol}.h`] = compiledSoundHeader;
   }
 
   output["game_globals.i"] = compileGameGlobalsInclude(
