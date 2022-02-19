@@ -1555,6 +1555,51 @@ class ScriptBuilder {
     );
   };
 
+  _soundPlayBasic = (channel: number, frames: number, data: number[]) => {
+    const symbol = this._getAvailableSymbol("sound_legacy_0");
+
+    let output = "";
+
+    const channelMasks = [
+      "",
+      "0b11111000", // Channel 1
+      "0b01111001", // Channel 2
+      "0b11111010", // Channel 3
+      "0b01111011", // Channel 4
+    ];
+
+    for (let i = 0; i < frames; i += 4) {
+      const len = Math.min(4, frames - i);
+      const extraFrames = len * 4 - 1;
+      if (i === 0) {
+        output += `    ${decHex((extraFrames << 4) + 1)}, ${
+          channelMasks[channel]
+        },${data.map(decHex).join(",")},`;
+      } else {
+        output += `    ${decHex(extraFrames << 4)},`;
+      }
+      output += "\n";
+    }
+
+    this.writeAsset(
+      `sounds/${symbol}.c`,
+      `#pragma bank 255
+
+#include <gbdk/platform.h>
+#include <stdint.h>
+
+BANKREF(${symbol})
+const uint8_t ${symbol}[] = {
+  ${output}
+  0x01, 0b00101000, 0x00,0xc0,      //shut ch1
+  0x01, 0b00000111,                 //stop
+};
+void AT(0b00000100) __mute_mask_${symbol};`
+    );
+
+    return symbol;
+  };
+
   _paletteLoad = (
     mask: number,
     type: ScriptBuilderPaletteType,
@@ -3562,42 +3607,47 @@ class ScriptBuilder {
 
   soundStartTone = (period = 1600, toneFrames = 30) => {
     this._addComment("Sound Play Tone");
-    // this._soundPlay(
-    //   toneFrames,
-    //   1,
-    //   0x00,
-    //   (0x0 << 6) | 0x01,
-    //   (0x0f << 4) | 0x00,
-    //   period & 0x00ff,
-    //   0x80 | ((period & 0x0700) >> 8)
-    // );
+    const symbol = this._soundPlayBasic(1, toneFrames, [
+      0x00,
+      (0x0 << 6) | 0x01,
+      (0x0f << 4) | 0x00,
+      period & 0x00ff,
+      0x80 | ((period & 0x0700) >> 8),
+    ]);
+    this._soundPlay(symbol);
+    this._addNL();
   };
 
   soundPlayBeep = (pitch = 4) => {
     this._addComment("Sound Play Beep");
-    // let pitchValue = pitch - 1;
-    // if (pitchValue < 0) {
-    //   pitchValue = 0;
-    // }
-    // if (pitchValue >= 8) {
-    //   pitchValue = 7;
-    // }
-    // pitchValue = pitchValue & 0x07;
-
-    // this._soundPlay(
-    //   30,
-    //   4,
-    //   0x01,
-    //   (0x0f << 4) | 0x02,
-    //   0x20 | 0x08 | pitchValue,
-    //   0x80 | 0x40,
-    //   0x00
-    // );
+    let pitchValue = pitch - 1;
+    if (pitchValue < 0) {
+      pitchValue = 0;
+    }
+    if (pitchValue >= 8) {
+      pitchValue = 7;
+    }
+    pitchValue = pitchValue & 0x07;
+    const symbol = this._soundPlayBasic(4, 30, [
+      0x01,
+      (0x0f << 4) | 0x02,
+      0x20 | 0x08 | pitchValue,
+      0x80 | 0x40,
+    ]);
+    this._soundPlay(symbol);
+    this._addNL();
   };
 
   soundPlayCrash = () => {
     this._addComment("Sound Play Crash");
-    // this._soundPlay(30, 4, 0x01, (0x0f << 4) | 0x02, 0x13, 0x80, 0x00);
+    const symbol = this._soundPlayBasic(4, 30, [
+      0x01,
+      (0x0f << 4) | 0x02,
+      0x13,
+      0x80,
+    ]);
+    this._soundPlay(symbol);
+    this._addNL();
   };
 
   soundPlay = (soundId: string) => {
@@ -4358,6 +4408,10 @@ class ScriptBuilder {
       filename,
       data,
     };
+  };
+
+  makeSymbol = (name: string) => {
+    return this._getAvailableSymbol(name);
   };
 
   // --------------------------------------------------------------------------
