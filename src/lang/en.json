@@ -504,6 +504,7 @@
   "FIELD_SOUND_EFFECT": "Sound Effect",
   "FIELD_FILES": "Files",
   "FIELD_BASIC": "Basic",
+  "FIELD_EFFECT_INDEX": "Effect Index",
 
   "// 7": "Asset Viewer ---------------------------------------------",
   "ASSET_SEARCH": "Search...",

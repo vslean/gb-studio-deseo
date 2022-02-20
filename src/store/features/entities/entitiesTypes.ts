@@ -219,7 +219,7 @@ export type Sound = {
   symbol: string;
   filename: string;
   plugin?: string;
-  type: "wav" | "vgm";
+  type: "wav" | "vgm" | "fxhammer";
   inode: string;
   _v: number;
 };
@@ -452,6 +452,7 @@ export interface ScriptEventFieldCondition {
   gte?: unknown;
   lte?: unknown;
   in?: unknown[];
+  soundType?: unknown;
 }
 
 export interface ScriptEventFieldSchema {

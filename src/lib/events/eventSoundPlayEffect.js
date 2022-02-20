@@ -69,6 +69,20 @@ const fields = [
     defaultValue: true,
     flexBasis: "100%",
   },
+  {
+    key: "effect",
+    type: "number",
+    label: l10n("FIELD_EFFECT_INDEX"),
+    min: 0,
+    max: 60,
+    defaultValue: 0,
+    conditions: [
+      {
+        key: "type",
+        soundType: "fxhammer",
+      },
+    ],
+  },
 ];
 
 const compile = (input, helpers) => {
@@ -100,7 +114,7 @@ const compile = (input, helpers) => {
   } else if (input.type === "crash") {
     soundPlayCrash();
   } else {
-    soundPlay(input.type);
+    soundPlay(input.type, input.effect);
     shouldWait = false;
   }
 

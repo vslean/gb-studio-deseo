@@ -1,5 +1,6 @@
 import { assetFilename } from "lib/helpers/gbstudio";
 import { Sound } from "store/features/entities/entitiesTypes";
+import { compileFXHammer } from "./compileFXHammer";
 import { compileVGM } from "./compileVGM";
 import { compileWav } from "./compileWav";
 
@@ -22,6 +23,8 @@ export const compileSound = (
     return compileWav(assetPath, sound.symbol);
   } else if (sound.type === "vgm") {
     return compileVGM(assetPath, sound.symbol);
+  } else if (sound.type === "fxhammer") {
+    return compileFXHammer(assetPath, sound.symbol);
   }
 
   throw new Error("Unknown sound file");

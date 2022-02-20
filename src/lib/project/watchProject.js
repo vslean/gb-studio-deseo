@@ -109,7 +109,7 @@ const watchProject = async (
     .on("unlink", onRemoveMusic);
 
   const soundsWatcher = chokidar
-    .watch(`${soundsRoot}/**/*.{wav,WAV,vgm,VGM,vgz,VGZ}`, {
+    .watch(`${soundsRoot}/**/*.{wav,WAV,vgm,VGM,vgz,VGZ,sav,SAV}`, {
       ignoreInitial: true,
       persistent: true,
       awaitWriteFinish,
@@ -160,7 +160,7 @@ const watchProject = async (
 
   const pluginsWatcher = chokidar
     .watch(
-      `${pluginsRoot}/**/*.{png,PNG,uge,UGE,mod,MOD,wav,WAV,vgm,VGM,vgz,VGZ}`,
+      `${pluginsRoot}/**/*.{png,PNG,uge,UGE,mod,MOD,wav,WAV,vgm,VGM,vgz,VGZ,sav,SAV}`,
       {
         ignoreInitial: true,
         persistent: true,

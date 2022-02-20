@@ -3650,12 +3650,18 @@ void AT(0b00000100) __mute_mask_${symbol};`
     this._addNL();
   };
 
-  soundPlay = (soundId: string) => {
+  soundPlay = (soundId: string, effect?: number) => {
     this._addComment(`Sound Play`);
     const { sounds } = this.options;
     const sound = sounds.find((s) => s.id === soundId);
     if (sound) {
-      this._soundPlay(`${sound.symbol}`);
+      this._soundPlay(
+        `${sound.symbol}${
+          sound.type === "fxhammer"
+            ? "_" + String(effect ?? 0).padStart(2, "0")
+            : ""
+        }`
+      );
     }
     this._addNL();
   };
