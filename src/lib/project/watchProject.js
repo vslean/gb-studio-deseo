@@ -109,7 +109,7 @@ const watchProject = async (
     .on("unlink", onRemoveMusic);
 
   const soundsWatcher = chokidar
-    .watch(`${soundsRoot}/**/*.{wav,WAV,vgm,VGM}`, {
+    .watch(`${soundsRoot}/**/*.{wav,WAV,vgm,VGM,vgz,VGZ}`, {
       ignoreInitial: true,
       persistent: true,
       awaitWriteFinish,
@@ -159,11 +159,14 @@ const watchProject = async (
     .on("unlink", onChangedEngineSchema);
 
   const pluginsWatcher = chokidar
-    .watch(`${pluginsRoot}/**/*.{png,PNG,uge,UGE,mod,MOD,wav,WAV,vgm,VGM}`, {
-      ignoreInitial: true,
-      persistent: true,
-      awaitWriteFinish,
-    })
+    .watch(
+      `${pluginsRoot}/**/*.{png,PNG,uge,UGE,mod,MOD,wav,WAV,vgm,VGM,vgz,VGZ}`,
+      {
+        ignoreInitial: true,
+        persistent: true,
+        awaitWriteFinish,
+      }
+    )
     .on("add", (filename) => {
       const subfolder = pluginSubfolder(filename);
       if (subfolder === "backgrounds") {

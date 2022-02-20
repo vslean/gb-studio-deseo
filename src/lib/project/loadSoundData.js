@@ -11,13 +11,13 @@ const loadSoundData = (projectRoot) => async (filename) => {
   const { file, plugin } = parseAssetPath(filename, projectRoot, "sounds");
   const fileStat = await stat(filename, { bigint: true });
   const inode = fileStat.ino.toString();
-  const name = file.replace(/(.vgm|.wav)/i, "");
+  const name = file.replace(/(.vgm|.vgz|.wav)/i, "");
   const type = file.toLowerCase().endsWith(".wav") ? "wav" : "vgm";
 
   return {
     id: uuidv4(),
     plugin,
-    name: `${name}.${type}`,
+    name: file,
     symbol: toValidSymbol(`sound_${name}`),
     filename: file,
     type,
@@ -28,10 +28,10 @@ const loadSoundData = (projectRoot) => async (filename) => {
 
 const loadAllSoundData = async (projectRoot) => {
   const soundPaths = await globAsync(
-    `${projectRoot}/assets/sounds/**/@(*.vgm|*.VGM|*.wav|*.WAV)`
+    `${projectRoot}/assets/sounds/**/@(*.vgm|*.VGM|*.vgz|*.VGZ|*.wav|*.WAV)`
   );
   const pluginPaths = await globAsync(
-    `${projectRoot}/plugins/*/sounds/**/@(*.vgm|*.VGM|*.wav|*.WAV)`
+    `${projectRoot}/plugins/*/sounds/**/@(*.vgm|*.VGM|*.vgz|*.VGZ|*.wav|*.WAV)`
   );
   const soundsData = await Promise.all(
     [].concat(

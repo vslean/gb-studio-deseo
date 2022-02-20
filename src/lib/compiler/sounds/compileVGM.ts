@@ -1,6 +1,7 @@
 import { readFile } from "fs-extra";
 import { decBin, decHex } from "lib/helpers/8bit";
 import { CompiledSound } from "./compileSound";
+import { ungzip } from "node-gzip";
 
 const MIN_VGM_VERSION = 0x161;
 
@@ -34,7 +35,11 @@ export const compileVGM = async (
     disabledChannels.add(3);
   }
 
-  const file = await readFile(filename);
+  let file = await readFile(filename);
+
+  if (filename.toLowerCase().endsWith(".vgz")) {
+    file = await ungzip(file);
+  }
 
   let ptr = 0;
   const read = () => {
