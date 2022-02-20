@@ -9,7 +9,19 @@ const fields = [
     type: "soundEffect",
     label: l10n("FIELD_SOUND_EFFECT"),
     defaultValue: "beep",
-    flexBasis: "100%",
+    flexBasis: "60%",
+  },
+  {
+    key: "priority",
+    label: l10n("FIELD_PRIORITY"),
+    type: "select",
+    options: [
+      ["low", l10n("FIELD_LOW")],
+      ["medium", l10n("FIELD_MEDIUM")],
+      ["high", l10n("FIELD_HIGH")],
+    ],
+    defaultValue: "medium",
+    flexBasis: "15%",
   },
   {
     key: "pitch",
@@ -93,13 +105,14 @@ const compile = (input, helpers) => {
     soundPlay,
     wait,
   } = helpers;
-
+  let priority = input.priority || "medium";
   let seconds = typeof input.duration === "number" ? input.duration : 0.5;
+  let frames = seconds * 60;
   let shouldWait = input.wait;
 
   if (input.type === "beep" || !input.type) {
     const pitch = typeof input.pitch === "number" ? input.pitch : 4;
-    soundPlayBeep(9 - pitch);
+    soundPlayBeep(9 - pitch, frames, priority);
   } else if (input.type === "tone") {
     const freq = typeof input.frequency === "number" ? input.frequency : 200;
     let period = (2048 - 131072 / freq + 0.5) | 0;
@@ -109,12 +122,11 @@ const compile = (input, helpers) => {
     if (period < 0) {
       period = 0;
     }
-    const toneFrames = Math.min(255, Math.ceil(seconds * 60));
-    soundStartTone(period, toneFrames);
+    soundStartTone(period, frames, priority);
   } else if (input.type === "crash") {
-    soundPlayCrash();
+    soundPlayCrash(frames, priority);
   } else {
-    soundPlay(input.type, input.effect);
+    soundPlay(input.type, priority, input.effect);
     shouldWait = false;
   }
 

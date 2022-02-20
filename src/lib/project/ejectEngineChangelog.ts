@@ -262,6 +262,27 @@ const changes: EngineChange[] = [
       "src/core/vm_ui.c",
     ],
   },
+  {
+    version: "3.1.0-e6",
+    description:
+      "Updates:\n" +
+      [
+        "   * Add support for sound effects priority",
+        "   * Fix issue where soft reset could lead to UI tiles over scene tiles",
+      ].join("\n"),
+    modifiedFiles: [
+      "include/music_manager.h",
+      "include/sfx_player.h",
+      "include/vm.i",
+      "include/vm_music.h",
+      "src/core/data_manager.c",
+      "src/core/music_manager.c",
+      "src/core/sfx_player.c",
+      "src/core/ui.c",
+      "src/core/vm_instructions.c",
+      "src/core/vm_music.c",
+    ],
+  },
 ];
 
 const ejectEngineChangelog = (currentVersion: string) => {

@@ -165,7 +165,7 @@ export const compileFXHammer = async (
   symbol: string
 ): Promise<CompiledSound> => {
   const options = {
-    delay: 1,
+    delay: 4,
     cutSound: true,
     usePan: true,
     optimize: true,

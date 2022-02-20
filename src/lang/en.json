@@ -505,6 +505,7 @@
   "FIELD_FILES": "Files",
   "FIELD_BASIC": "Basic",
   "FIELD_EFFECT_INDEX": "Effect Index",
+  "FIELD_PRIORITY": "Priority",
 
   "// 7": "Asset Viewer ---------------------------------------------",
   "ASSET_SEARCH": "Search...",

@@ -5,16 +5,9 @@
 
 #include "sfx_player.h"
 
-uint8_t sfx_play_bank;
+volatile uint8_t sfx_play_bank;
 const uint8_t * sfx_play_sample;
-uint16_t sfx_frame_count;
 uint8_t sfx_frame_skip;
-
-void sfx_reset_player() BANKED {
-    sfx_play_bank = SFX_STOP_BANK;
-    sfx_play_sample = NULL;
-    sfx_frame_count = 0;
-}
 
 uint8_t sfx_play_isr() NONBANKED NAKED OLDCALL {
 #if defined(__SDCC) && defined(NINTENDO) 
@@ -47,12 +40,13 @@ lbl:
         ld h, d
         ld l, e                     ; HL = current position inside the sample
 
-        ld a, (__current_bank)      ; save bank and switch
+        ldh a, (__current_bank)     ; save bank and switch
         ld e, a
         ld a, (_sfx_play_bank)
         inc a                       ; SFX_STOP_BANK ?
         jr z, 8$
         dec a
+        ldh (__current_bank), a
         ld (_rROMB0), a
 
         ld d, #0x0f
@@ -87,23 +81,23 @@ lbl:
 
         ld a, b
         cp #6
-        jr nz, 4$               ; just load waveform, not play
+        jr nz, 4$                   ; just load waveform, not play
 
         ld c, #_NR30_REG
-        ld a, #0x80             ; retrigger wave channel
+        ld a, #0x80                 ; retrigger wave channel
         ldh (c),a
         xor a
         ldh (c), a
 
         ld a, #0x80             
         ldh (c),a
-        ld a, #0xFE             ; length of wave
+        ld a, #0xFE                 ; length of wave
         ldh (_NR31_REG),a
-        ld a, #0x20             ; volume
+        ld a, #0x20                 ; volume
         ldh (_NR32_REG),a
-        xor a                   ; low freq bits are zero
+        xor a                       ; low freq bits are zero
         ldh (_NR33_REG),a
-        ld a, #0xC7             ; start; no loop; high freq bits are 111
+        ld a, #0xC7                 ; start; no loop; high freq bits are 111
         ldh (_NR34_REG),a       
 
         jr 4$
@@ -135,6 +129,7 @@ lbl:
         ld (_sfx_play_sample + 1), a
 
         ld a, e                     ; restore bank
+        ldh (__current_bank), a
         ld (_rROMB0), a
 
         ld e, d                     ; result in e

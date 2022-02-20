@@ -192,6 +192,12 @@ type ScriptBuilderLocalSymbol = {
   lastUse: number;
 };
 
+type SFXPriority = "low" | "medium" | "high";
+type ASMSFXPriority =
+  | ".SFX_PRIORITY_MINIMAL"
+  | ".SFX_PRIORITY_NORMAL"
+  | ".SFX_PRIORITY_HIGH";
+
 // - Helpers --------------
 
 const getActorIndex = (actorId: string, scene: ScriptBuilderScene) => {
@@ -291,6 +297,16 @@ const toASMCameraLock = (axis: ScriptBuilderAxis[]) => {
       axis.includes("y") ? ".CAMERA_LOCK_Y" : []
     )
   );
+};
+
+const toASMSoundPriority = (priority: SFXPriority): ASMSFXPriority => {
+  if (priority === "low") {
+    return ".SFX_PRIORITY_MINIMAL";
+  }
+  if (priority === "high") {
+    return ".SFX_PRIORITY_HIGH";
+  }
+  return ".SFX_PRIORITY_NORMAL";
 };
 
 const dirToAngle = (direction: string) => {
@@ -1546,12 +1562,13 @@ class ScriptBuilder {
     );
   };
 
-  _soundPlay = (symbol: string) => {
+  _soundPlay = (symbol: string, priority: ASMSFXPriority) => {
     this._addCmd(
       "VM_SFX_PLAY",
       `___bank_${symbol}`,
       `_${symbol}`,
-      `___mute_mask_${symbol}`
+      `___mute_mask_${symbol}`,
+      priority
     );
   };
 
@@ -3605,7 +3622,7 @@ void AT(0b00000100) __mute_mask_${symbol};`
   // --------------------------------------------------------------------------
   // Sound
 
-  soundStartTone = (period = 1600, toneFrames = 30) => {
+  soundStartTone = (period = 1600, toneFrames = 30, priority: SFXPriority) => {
     this._addComment("Sound Play Tone");
     const symbol = this._soundPlayBasic(1, toneFrames, [
       0x00,
@@ -3614,11 +3631,11 @@ void AT(0b00000100) __mute_mask_${symbol};`
       period & 0x00ff,
       0x80 | ((period & 0x0700) >> 8),
     ]);
-    this._soundPlay(symbol);
+    this._soundPlay(symbol, toASMSoundPriority(priority));
     this._addNL();
   };
 
-  soundPlayBeep = (pitch = 4) => {
+  soundPlayBeep = (pitch = 4, frames = 30, priority: SFXPriority) => {
     this._addComment("Sound Play Beep");
     let pitchValue = pitch - 1;
     if (pitchValue < 0) {
@@ -3628,29 +3645,29 @@ void AT(0b00000100) __mute_mask_${symbol};`
       pitchValue = 7;
     }
     pitchValue = pitchValue & 0x07;
-    const symbol = this._soundPlayBasic(4, 30, [
+    const symbol = this._soundPlayBasic(4, frames, [
       0x01,
       (0x0f << 4) | 0x02,
       0x20 | 0x08 | pitchValue,
       0x80 | 0x40,
     ]);
-    this._soundPlay(symbol);
+    this._soundPlay(symbol, toASMSoundPriority(priority));
     this._addNL();
   };
 
-  soundPlayCrash = () => {
+  soundPlayCrash = (frames = 30, priority: SFXPriority) => {
     this._addComment("Sound Play Crash");
-    const symbol = this._soundPlayBasic(4, 30, [
+    const symbol = this._soundPlayBasic(4, frames, [
       0x01,
       (0x0f << 4) | 0x02,
       0x13,
       0x80,
     ]);
-    this._soundPlay(symbol);
+    this._soundPlay(symbol, toASMSoundPriority(priority));
     this._addNL();
   };
 
-  soundPlay = (soundId: string, effect?: number) => {
+  soundPlay = (soundId: string, priority: SFXPriority, effect?: number) => {
     this._addComment(`Sound Play`);
     const { sounds } = this.options;
     const sound = sounds.find((s) => s.id === soundId);
@@ -3660,7 +3677,8 @@ void AT(0b00000100) __mute_mask_${symbol};`
           sound.type === "fxhammer"
             ? "_" + String(effect ?? 0).padStart(2, "0")
             : ""
-        }`
+        }`,
+        toASMSoundPriority(priority)
       );
     }
     this._addNL();
