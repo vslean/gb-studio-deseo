@@ -102,7 +102,21 @@ export const compileVGM = async (
       } else {
         throw new Error(`Invalid register address: ${addr}`);
       }
-    } else if (data === 0x62) {
+    } else if (
+      data === 0x61 ||
+      data === 0x62 ||
+      (data >= 0x70 && data <= 0x7f)
+    ) {
+      let delay = 0;
+      if (data === 0x61) {
+        const n = unpackInt(readSlice(2));
+        const frames = Math.round((n / 65535) * 90);
+        delay += frames;
+      }
+      if (data >= 0x70 && data <= 0x7f) {
+        delay += data - 0x6f;
+      }
+
       let result = "";
       let count = 0;
 
@@ -164,7 +178,7 @@ export const compileVGM = async (
       }
 
       //optional delay
-      count |= Math.max(0, options.delay - 1) << 4;
+      count |= Math.max(0, options.delay + delay - 1) << 4;
 
       // output result
       result = `${decHex(count)},${result}\n`;
