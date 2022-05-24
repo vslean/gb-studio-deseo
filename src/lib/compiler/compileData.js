@@ -926,8 +926,8 @@ export const precompileScenes = (
       .filter((a) => !actorsExclusiveLookup[a.id])
       .map((a) => a.spriteSheetId);
 
-    const sceneSpriteIds = [].concat(actorSpriteIds, eventSpriteIds);
-
+	//const sceneSpriteIds = [].concat(actorSpriteIds, eventSpriteIds);
+    const sceneSpriteIds = actorSpriteIds;
     return {
       ...scene,
       backgroundIndex,

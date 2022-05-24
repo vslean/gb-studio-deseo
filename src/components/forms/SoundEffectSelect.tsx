@@ -43,6 +43,10 @@ const options = [
     label: l10n("FIELD_EFFECT_CRASH"),
     value: "crash",
   },
+  {
+	label: "sweep",
+	value: "sweep"
+  }
 ];
 
 export const PlaySoundEffect = ({

@@ -48,11 +48,44 @@ export const DialoguePreview: FC<DialoguePreviewProps> = ({
     filename: `frame.png`,
     _v: uiVersion,
   };
+  const ava1Asset = {
+    id: "ava1",
+    name: "Avatar 1",
+    filename: `ava1.png`,
+    _v: uiVersion,
+  };
+  const ava2Asset = {
+    id: "ava2",
+    name: "Avatar 2",
+    filename: `ava2.png`,
+    _v: uiVersion,
+  };
+  const ava3Asset = {
+    id: "ava3",
+    name: "Avatar 3",
+    filename: `ava3.png`,
+    _v: uiVersion,
+  };
 
   const frameFilename = `file:///${assetFilename(
     projectRoot,
     "ui",
     frameAsset
+  )}?_v=${uiVersion}`;
+  const ava1Filename = `file:///${assetFilename(
+    projectRoot,
+    "customAvatars",
+    ava1Asset
+  )}?_v=${uiVersion}`;
+  const ava2Filename = `file:///${assetFilename(
+    projectRoot,
+    "customAvatars",
+    ava2Asset
+  )}?_v=${uiVersion}`;
+  const ava3Filename = `file:///${assetFilename(
+    projectRoot,
+    "customAvatars",
+    ava3Asset
   )}?_v=${uiVersion}`;
 
   const avatarFilename = avatarAsset
@@ -137,18 +170,48 @@ export const DialoguePreview: FC<DialoguePreviewProps> = ({
       canvas.width = canvas.width;
       if (ctx) {
         const tileWidth = 20;
-        const tileHeight = textNumLines(text) + 2;
+        const tileHeight = 6;
         canvas.width = tileWidth * 8;
         canvas.height = tileHeight * 8;
         drawFrame(ctx, frameImage, tileWidth, tileHeight);
-        if (avatarId) {
-          drawText(ctx, text, 24, 8, fontsData, defaultFontId, fonts[0]?.id);
-          if (avatarImage) {
-            ctx.drawImage(avatarImage, 8, 8);
-          }
+        const img= new Image();
+		const img2= new Image();
+		if(text[0]=="4" || text[0]=="5" || text[0]=="6"){
+			if(text[0]=="4"){
+				img2.src=ava1Filename;
+			}else if(text[0]=="5"){
+				img2.src=ava2Filename;
+			}else if(text[0]=="6"){
+				img2.src=ava3Filename;
+			}
+		}
+		text=text.replace("4","");
+		text=text.replace("5","");
+		text=text.replace("6","");
+		if(text[0]=="1" || text[0]=="2" || text[0]=="3"){
+			
+			if(text[0]=="1"){
+				img.src=ava1Filename;
+			}else if(text[0]=="2"){
+				img.src=ava2Filename;
+			}else if(text[0]=="3"){
+				img.src=ava3Filename;
+			}
+			
+		}
+		text=text.replace("1","");
+		text=text.replace("2","");
+		text=text.replace("3","");
+		
+		var pelado=text.replace("\r","");
+		pelado=pelado.replace("\n","");
+		if(pelado.length>49){
+			text="¡ERROR!";
         } else {
-          drawText(ctx, text, 8, 8, fontsData, defaultFontId, fonts[0]?.id);
+			ctx.drawImage(img,8,8);
+			ctx.drawImage(img2,120,8);
         }
+		drawText(ctx, text, 40, 8, fontsData, defaultFontId, fonts[0]?.id);		
       }
       setDrawn(true);
     }

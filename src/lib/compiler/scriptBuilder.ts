@@ -2306,7 +2306,7 @@ class ScriptBuilder {
     }
 
     this._loadStructuredText(choiceText);
-    this._overlayClear(0, 0, 20, numLines + 2, ".UI_COLOR_WHITE", true);
+    this._overlayClear(0, 0, 20, 6, ".UI_COLOR_BLACK", true);
     this._overlayMoveTo(0, 18 - numLines - 2, ".OVERLAY_IN_SPEED");
     this._displayText();
     this._overlayWait(true, [".UI_WAIT_WINDOW", ".UI_WAIT_TEXT"]);
@@ -3282,7 +3282,18 @@ class ScriptBuilder {
       0x80 | ((period & 0x0700) >> 8)
     );
   };
-
+  soundStartSweep = (swp_time=0,swp_mode=0,swp_shifts=0,pat_duty=0,len=0,env_init=0,env_mode=0,env_nb_swp=0,freq=0,cons_sel=0, toneFrames = 30) => {
+    this._addComment("Sound Play Tone");
+    this._soundPlay(
+      toneFrames,
+      1,
+      swp_time*0x10+swp_mode*0x08+swp_shifts,
+      pat_duty*0x40+len,
+      env_init*0x10+env_mode*0x08+env_nb_swp,
+	  freq%256,
+	  0x80+cons_sel*0x40+Math.floor(freq/256)
+    );
+  };
   soundPlayBeep = (pitch = 4) => {
     this._addComment("Sound Play Beep");
     let pitchValue = pitch - 1;

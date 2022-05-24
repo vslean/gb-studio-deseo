@@ -54,10 +54,160 @@ const fields = [
     label: l10n("FIELD_WAIT_UNTIL_FINISHED"),
     defaultValue: true,
   },
+  {
+    key: "swp_time",
+    type: "number",
+    label: "Swp Time",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 7,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "swp_mode",
+    type: "number",
+    label: "Swp Mode",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 1,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "swp_shifts",
+    type: "number",
+    label: "Swp Shifts",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 7,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "pat_duty",
+    type: "number",
+    label: "Pat Duty",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 3,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "len",
+    type: "number",
+    label: "Sound Len",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 63,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "env_init",
+    type: "number",
+    label: "Env Init",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 15,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "env_mode",
+    type: "number",
+    label: "Env Mode",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 1,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "env_nb_swp",
+    type: "number",
+    label: "Env Nb Swp",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 7,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "freq",
+    type: "number",
+    label: "Frequency",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 2047,
+    step: 1,
+    defaultValue: 0,
+  },
+  {
+    key: "cons_sel",
+    type: "number",
+    label: "Cons Sel",
+    conditions: [
+      {
+        key: "type",
+        eq: "sweep",
+      },
+    ],
+    min: 0,
+    max: 1,
+    step: 1,
+    defaultValue: 0,
+  }
 ];
 
 const compile = (input, helpers) => {
-  const { soundPlayBeep, soundStartTone, soundPlayCrash, wait } = helpers;
+  const { soundPlayBeep, soundStartTone, soundStartSweep, soundPlayCrash, wait } = helpers;
 
   let seconds = typeof input.duration === "number" ? input.duration : 0.5;
 
@@ -77,6 +227,9 @@ const compile = (input, helpers) => {
     soundStartTone(period, toneFrames);
   } else if (input.type === "crash") {
     soundPlayCrash();
+  } else if(input.type=== "sweep"){
+    const toneFrames = Math.min(255, Math.ceil(seconds * 60));
+    soundStartSweep(input.swp_time,input.swp_mode,input.swp_shifts,input.pat_duty,input.len,input.env_init,input.env_mode,input.env_nb_swp,input.freq,input.cons_sel, toneFrames);
   }
 
   // Convert seconds into frames (60fps)
